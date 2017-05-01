@@ -19,7 +19,6 @@
 ###  使用方法
     InitMap.java-->用来初始化4*4地图的无向地图。
     test.java -->用来测试算法。
-    Graph.java-->给定List<EdgeSql> EdgeQgisSql, List<NodeSql> NodesBean即可以创建Graph
 
 ### warning:Interesting 值仍为0
 ### 导航路线接口文档
