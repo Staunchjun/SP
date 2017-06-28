@@ -47,7 +47,7 @@ public  class Guider {
     //    =======================for single goal===========================================
     public static List<Path> getSingleDestPath(Graph graph, Node node, Node node1, List ob, double v) {
         Algorithm algorithm = new Algorithm(graph);
-        List<Path> paths = algorithm.getSingleDestPath(graph,graph.getNode(0),graph.getNode(12),ob,0.1);
+        List<Path> paths = algorithm.getSingleDestPath(graph,node,node1,ob,v);
         return paths;
     }
 

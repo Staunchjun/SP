@@ -118,9 +118,15 @@ public class Algorithm {
     }
 
     private void ShowBestPath(Path bestPath) {
-
-        if (bestPath.nodes == null) {
+        if (bestPath == null)
+        {
             System.out.print("There must be no best path ~~~");
+            System.out.println("you just stay at original node");
+            return;
+        }
+        if (bestPath.nodes == null) {
+            System.out.print("There must be no best path +++++++++~~~");
+            return;
         } else {
             System.out.println("Here is a best path.");
             List stack = bestPath.nodes;
