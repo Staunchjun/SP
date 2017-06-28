@@ -1,5 +1,6 @@
 package RecommendPath;
 
+import Bean.NodeSql;
 import DataStructure.Graph;
 import DataStructure.Node;
 import DataStructure.Path;
@@ -100,12 +101,12 @@ public class TestPath {
         Stack<Node> finalPath = new Stack<Node>();
         pDis = new HashMap<Integer, Double>();
         //对所有的product根据离入口距离进行排序,从小到大
-        List<Map.Entry<Integer, Double>> pDisSorted = CreateSort(pDis,nodes,graph);
+        Node lastNode = graph.getNode(0);
+        List<Map.Entry<Integer, Double>> pDisSorted = CreateSort(pDis, nodes, graph, lastNode);
         System.out.println("距离进行排序啦~~");
         for (Map.Entry entry : pDisSorted) {
             System.out.println(entry.getKey() + ":" + entry.getValue());
         }
-        Node lastNode = graph.getNode(0);
         while (pDis != null) {
             Node des = graph.getNode(pDisSorted.get(0).getKey());
             List<Path> paths = Guider.getSingleDestPath(graph, lastNode, des, null, 0.1);
@@ -113,7 +114,7 @@ public class TestPath {
                 //出现了自己去自己,eg:  4->4
                 pDis.remove(des.N);
                 nodes.remove(graph.getNode(des.N));
-                pDisSorted = CreateSort(pDis,nodes,graph);
+                pDisSorted = CreateSort(pDis, nodes, graph, des);
                 System.out.println("重新排序啦_______去除自己");
                 for (Map.Entry entry : pDisSorted) {
                     System.out.println(entry.getKey() + ":" + entry.getValue());
@@ -127,7 +128,7 @@ public class TestPath {
                 if (pDis.containsKey(node.N)) {
                     pDis.remove(node.N);
                     nodes.remove(graph.getNode(des.N));
-                    pDisSorted = CreateSort(pDis,nodes,graph);
+                    pDisSorted = CreateSort(pDis, nodes, graph, des);
                     System.out.println("重新排序啦，去除路径中已经包含");
                     for (Map.Entry entry : pDisSorted) {
                         System.out.println(entry.getKey() + ":" + entry.getValue());
@@ -157,9 +158,9 @@ public class TestPath {
         }
     }
 
-    private static List<Map.Entry<Integer, Double>> CreateSort(Map<Integer, Double> a, ArrayList<Node> nodes, Graph graph) {
+    private static List<Map.Entry<Integer, Double>> CreateSort(Map<Integer, Double> a, ArrayList<Node> nodes, Graph graph, Node lastNode) {
         for (Node target : nodes) {
-            double Cost = Util.getDis(graph.getNode(0), target);
+            double Cost = Util.getDis(lastNode, target);
             a.put(target.N, Cost);
         }
         List<Map.Entry<Integer, Double>> list1 = new ArrayList<Map.Entry<Integer, Double>>(a.entrySet());
