@@ -1,18 +1,25 @@
 package RecommendPath;
 
+import DataStructure.Graph;
+import DataStructure.Node;
+import TestCode.InitMap;
+
 import java.util.*;
 
 /**
  * Created by Administrator on 2017/6/28 0028.
  */
-public class Test {
+public class TestPath {
     //N types of product
     static int N = 160;
-
+    static HashMap<Integer, Double> allProducts;
+    static int[] shopList ;
+    static Map<Integer, Set<Integer>> shelf;
+    static Map<Integer,Integer> pLocation;
     public static void main(String[] args) {
         Random random = new Random();
         //均值为0.方差为1 的高斯分布
-        HashMap<Integer, Double> allProducts = new HashMap<Integer, Double>();
+        allProducts = new HashMap<Integer, Double>();
         for (int i = 0; i < N; i++) {
             allProducts.put(new Integer(i), Math.abs(Math.sqrt(1) * random.nextGaussian() + 0));}
         //对所有的product根据probability进行排序,从大到小
@@ -26,7 +33,7 @@ public class Test {
         //k probability distribution
         //k, a customer going to buy k products
         int k = 10;
-        int[] shopList = new int[k];
+        shopList = new int[k];
         int count = 0;
         for (Map.Entry<Integer, Double> mapping : list) {
             System.out.println(mapping.getKey() + ":" + mapping.getValue());
@@ -34,7 +41,8 @@ public class Test {
             count++;
             if (count == 10) {break;}}
         //所有商品随机分配给16个点 0-15
-        Map<Integer, Set<Integer>> shelf = new HashMap<Integer, Set<Integer>>();
+        shelf = new HashMap<Integer, Set<Integer>>();
+        pLocation = new HashMap<Integer,Integer>();
         for (int i = 0; i < 16; i++) {
             Set<Integer> products = new HashSet<Integer>();
             for (int j = 0; j < 10; j++) {
@@ -42,6 +50,7 @@ public class Test {
                     int productId = random.nextInt(N);
                     if (allProducts.containsKey(productId)) {
                         products.add(productId);
+                        pLocation.put(productId,i);
                         allProducts.remove(productId);
                         break;
                     } else {
@@ -58,6 +67,19 @@ public class Test {
         for (int toBuy : shopList) {
             System.out.print(toBuy + " ");
         }
-        //Generating a path;
+        //Get product location
+        System.out.println();
+        System.out.print("输出位置");
+        for (int i : shopList)
+            System.out.println(i+" "+pLocation.get(i));
+        //Generating paths;
+        // 初始化graph
+        Graph graph = InitMap.returnGraph();
+        //   设置多个目标点
+        ArrayList<Node> nodes = new ArrayList<Node>();
+        nodes.add(graph.getNode(0));
+        nodes.add(graph.getNode(15));
+        nodes.add(graph.getNode(12));
+
     }
 }
