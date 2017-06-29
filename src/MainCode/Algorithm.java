@@ -204,7 +204,8 @@ public class Algorithm {
 
 
     private void ShoAllwPathInfomation(List<Path> allPathsInfomation) {
-        System.out.println("paths:" + (allPathsInfomation.size()));
+        System.out.println();
+        System.out.println("Sum of paths:" + (allPathsInfomation.size()));
         for (Path path : allPathsInfomation) {
             List stack =  path.nodes;
             if (stack == null) {

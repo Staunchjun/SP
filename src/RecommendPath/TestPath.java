@@ -1,6 +1,4 @@
 package RecommendPath;
-
-import Bean.NodeSql;
 import DataStructure.Graph;
 import DataStructure.Node;
 import DataStructure.Path;
@@ -38,19 +36,6 @@ public class TestPath {
                 return -o1.getValue().compareTo(o2.getValue());
             }
         });
-        //k probability distribution
-        //k, a customer going to buy k products
-        int k = 4;
-        shopList = new int[k];
-        int count = 0;
-        for (Map.Entry<Integer, Double> mapping : list) {
-            System.out.println(mapping.getKey() + ":" + mapping.getValue());
-            shopList[count] = mapping.getKey();
-            count++;
-            if (count == k) {
-                break;
-            }
-        }
         //所有商品随机分配给16个点 0-15
         shelf = new HashMap<Integer, Set<Integer>>();
         pLocation = new HashMap<Integer, Integer>();
@@ -78,18 +63,35 @@ public class TestPath {
             System.out.print(e.getKey());
             System.out.println(e.getValue());
         }
+        //k probability distribution
+        //k, a customer going to buy k products
         System.out.println();
-        System.out.print("输出待购买商品");
+        System.out.print("输出待购买商品概率(由高到低):");
+        System.out.println();
+        int k = 4;
+        shopList = new int[k];
+        int count = 0;
+        for (Map.Entry<Integer, Double> mapping : list) {
+            System.out.println("商品"+mapping.getKey()+"的购买概率" + ":" + mapping.getValue());
+            shopList[count] = mapping.getKey();
+            count++;
+            if (count == k) {
+                break;
+            }
+        }
+        System.out.println();
+        System.out.print("输出待购买商品列表:");
         System.out.println();
         for (int toBuy : shopList) {
             System.out.print(toBuy + " ");
         }
         //Get product location
         System.out.println();
-        System.out.print("输出购买商品位置");
         System.out.println();
+        System.out.println("输出待购买商品位置:");
         for (int i : shopList)
-            System.out.println(i + "->" + pLocation.get(i));
+            System.out.println("商品"+i +"的位置"+ "->" + pLocation.get(i));
+        System.out.println();
 
         //Generating paths;
         // 初始化graph
@@ -97,16 +99,17 @@ public class TestPath {
         ArrayList<Node> nodes = new ArrayList<Node>();
         for (int i : shopList)
             nodes.add(graph.getNode(pLocation.get(i)));
-
         Stack<Node> finalPath = new Stack<Node>();
         pDis = new HashMap<Integer, Double>();
         //对所有的product根据离入口距离进行排序,从小到大
         Node lastNode = graph.getNode(0);
         List<Map.Entry<Integer, Double>> pDisSorted = CreateSort(pDis, nodes, graph, lastNode);
-        System.out.println("距离进行排序啦~~");
+        System.out.println();
+        System.out.println("根据离入口距离进行点排序:");
         for (Map.Entry entry : pDisSorted) {
             System.out.println(entry.getKey() + ":" + entry.getValue());
         }
+        System.out.println();
         while (pDis != null) {
             Node des = graph.getNode(pDisSorted.get(0).getKey());
             List<Path> paths = Guider.getSingleDestPath(graph, lastNode, des, null, 0.1);
@@ -115,10 +118,12 @@ public class TestPath {
                 pDis.remove(des.N);
                 nodes.remove(graph.getNode(des.N));
                 pDisSorted = CreateSort(pDis, nodes, graph, des);
-                System.out.println("重新排序啦_______去除自己");
+                System.out.println();
+                System.out.println("重新排序。去除重复点。");
                 for (Map.Entry entry : pDisSorted) {
-                    System.out.println(entry.getKey() + ":" + entry.getValue());
+                    System.out.println("起始点"+des.N+"->"+entry.getKey() + "的距离:" + entry.getValue());
                 }
+                System.out.println();
                 continue;
             }
             Path bestPath = paths.get(0);
@@ -129,13 +134,16 @@ public class TestPath {
                     pDis.remove(node.N);
                     nodes.remove(graph.getNode(des.N));
                     pDisSorted = CreateSort(pDis, nodes, graph, des);
-                    System.out.println("重新排序啦，去除路径中已经包含");
+
+                    System.out.println();
+                    System.out.println("重新排序，去除路径中已包含点");
                     for (Map.Entry entry : pDisSorted) {
-                        System.out.println(entry.getKey() + ":" + entry.getValue());
+                        System.out.println("起始点"+des.N+"->"+entry.getKey() + "的距离:" + entry.getValue());
                     }
                     if (pDisSorted.isEmpty()) {
-                        System.out.println("gaojuhengfu ~~~~~~~~~~~");
+                        System.out.println("pDisSorted 清空");
                     }
+                    System.out.println();
                 }
             }
             while (!tempPath.isEmpty()) {
@@ -171,9 +179,6 @@ public class TestPath {
                 return o1.getValue().compareTo(o2.getValue());
             }
         });
-        for (Map.Entry entry : list1) {
-            System.out.println(entry.getKey() + ":" + entry.getValue());
-        }
         return list1;
     }
 }
