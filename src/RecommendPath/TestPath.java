@@ -14,6 +14,7 @@ import java.util.*;
 public class TestPath {
     //N types of product
     static int N = 160;
+    static int k = 7;
     static HashMap<Integer, Double> allProducts;
     static int[] shopList;
     static Map<Integer, Set<Integer>> shelf;
@@ -68,7 +69,6 @@ public class TestPath {
         System.out.println();
         System.out.print("输出待购买商品概率(由高到低):");
         System.out.println();
-        int k = 4;
         shopList = new int[k];
         int count = 0;
         for (Map.Entry<Integer, Double> mapping : list) {
