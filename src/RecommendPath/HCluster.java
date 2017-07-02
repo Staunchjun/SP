@@ -1,9 +1,12 @@
 package RecommendPath;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import DataStructure.Graph;
+import DataStructure.Node;
+import DataStructure.Path;
+import MainCode.Guider;
+import TestCode.InitMap;
+
+import java.util.*;
 
 /**
  * Created by Administrator on 2017/6/7.
@@ -121,7 +124,7 @@ public class HCluster {
         return originalClusters;
     }
 
-//    //加载历史数据，并且添加要搜寻的数据
+    //    //加载历史数据，并且添加要搜寻的数据
 //    private static ArrayList<DataPoint> HistoryData(List<DataPoint> dataPoints) {
 //        ArrayList<DataPoint> dataSet = new ArrayList<DataPoint>();
 //        Customer customer = GenData.getCustomerData();
@@ -177,74 +180,166 @@ public class HCluster {
 //
 //        return targets;
 //    }
+    public static TestPathGenerate testPathGenerate = new TestPathGenerate();
+    public static int J;
 
     public static void main(String[] args) {
-        DataPoint target1 = new DataPoint("9,5,6,7,3,4,", "tt1");
-        DataPoint target2 = new DataPoint("9,5,6,7,3,3,", "tt2");
-        DataPoint target3 = new DataPoint("9,5,6,7,3,8,", "tt3");
-        List<DataPoint> targets = new ArrayList<>();
-        targets.add(target1);
-        targets.add(target2);
-        targets.add(target3);
+        Map<String, int[]> history = testPathGenerate.TestPathGenerating();
+        Map<int[], double[]> TNewCustomer = testPathGenerate.TestTNewCustomer();
 
-        //加载历史数据，并且添加要搜寻的数据
-        ArrayList<DataPoint> dataSet = new ArrayList<DataPoint>();
-        Customer customer = GenData.getCustomerData();
-        for (HashMap.Entry e : customer.getHistory().entrySet()) {
-            List<Product> products = (List<Product>) e.getValue();
-            for (Product product : products) {
-                System.out.print(product.getId() + ",");
+        for (Map.Entry<int[], double[]> newCustomer : TNewCustomer.entrySet()) {
+            //Generating paths;
+            // 初始化graph
+            Graph graph = InitMap.returnGraph();
+            ArrayList<Node> nodes = new ArrayList<Node>();
+            int alyeadyBuy = 0;
+            List<Integer> restBuy = new ArrayList<Integer>();
+            for (int i : newCustomer.getKey()) {
+                if (alyeadyBuy <= J) {
+                    nodes.add(graph.getNode(testPathGenerate.pLocation.get(i)));
+                    alyeadyBuy++;
+                } else {
+                    restBuy.add(i);
+                }
+            }
+            Stack<Node> finalPath = new Stack<Node>();
+            Map<Integer, Double> pDis = new HashMap<Integer, Double>();
+            //对所有的product根据离入口距离进行排序,从小到大
+            Node lastNode = graph.getNode(0);
+            List<Map.Entry<Integer, Double>> pDisSorted = testPathGenerate.CreateSort(pDis, nodes, graph, lastNode);
+            System.out.println();
+            System.out.println("根据离入口距离进行点排序:");
+            for (Map.Entry entry : pDisSorted) {
+                System.out.println(entry.getKey() + ":" + entry.getValue());
             }
             System.out.println();
-            dataSet.add(new DataPoint((String) e.getKey()));
-        }
-        for (DataPoint dp:targets) {
-            dataSet.add(dp);
-        }
-
-        //设置原始数据集
-        List<Cluster> finalClusters = startCluster(dataSet, 2, 0.5);
-        //查看结果
-        for (int m = 0; m < finalClusters.size(); m++) {
-            System.out.println(finalClusters.get(m).getClusterName());
-            for (DataPoint dataPoint : finalClusters.get(m).getDataPoints()) {
-                System.out.println(dataPoint.getDataPointName() + ":" + dataPoint.getData());
-            }
-            System.out.println();
-        }
-
-        //List<DataPoint> DataPoints = SearchCluster(targets);
-
-        for (DataPoint dp : targets) {
-            System.out.println("list node:" + dp.getDataPointName() + " cluster:" + dp.getCluster().getClusterName());
-            Cluster cluster = dp.getCluster();
-            List<DataPoint> dps =  cluster.getDataPoints();
-            //统计每一条路径中所有已购买商品总数
-            for (DataPoint dataPoint:dps)
-            {
-                if (dataPoint.getData().equals(target1.getData())||dataPoint.getData().equals(target2.getData())||dataPoint.getData().equals(target3.getData()))
-                {
+            while (pDisSorted.size() != 0 && pDis != null) {
+                Node des = graph.getNode(pDisSorted.get(0).getKey());
+                List<Path> paths = Guider.getSingleDestPath(graph, lastNode, des, null, 0.1);
+                if (paths.isEmpty()) {
+                    //出现了自己去自己,eg:  4->4
+                    pDis.remove(des.N);
+                    nodes.remove(graph.getNode(des.N));
+                    pDisSorted = testPathGenerate.CreateSort(pDis, nodes, graph, des);
+                    System.out.println();
+                    System.out.println("重新排序。去除重复点。");
+                    for (Map.Entry entry : pDisSorted) {
+                        System.out.println("起始点" + des.N + "->" + entry.getKey() + "的距离:" + entry.getValue());
+                    }
+                    System.out.println();
                     continue;
                 }
-                List<Product> products = customer.getHistory().get(dataPoint.getData());
-                Map<String,Double> productNum = new HashMap<>();
-                for (Product product:products) {
-                    if (!productNum.containsKey(product.getId()))
-                    {
-                        productNum.put(product.getId(),1.0);
-                    }
-                    else {
-                       double num = productNum.get(product.getId());
-                       productNum.put(product.getId(),++num);
-                    }
-                }
-                for (HashMap.Entry e : productNum.entrySet()) {
-                    double a = (double) e.getValue();
-                    productNum.put((String) e.getKey(), a/products.size());
-                    System.out.println(e.getKey()+":"+String.format("%4f",e.getValue()));
-                }
+                Path bestPath = paths.get(0);
+                Stack<Node> tempPath = new Stack<Node>();
+                for (Node node : bestPath.getNodes()) {
+                    tempPath.push(node);
+                    if (pDis.containsKey(node.N)) {
+                        pDis.remove(node.N);
+                        nodes.remove(graph.getNode(des.N));
+                        pDisSorted = testPathGenerate.CreateSort(pDis, nodes, graph, des);
 
+                        System.out.println();
+                        System.out.println("重新排序，去除路径中已包含点");
+                        for (Map.Entry entry : pDisSorted) {
+                            System.out.println("起始点" + des.N + "->" + entry.getKey() + "的距离:" + entry.getValue());
+                        }
+                        if (pDisSorted.isEmpty()) {
+                            System.out.println("pDisSorted 清空");
+                        }
+                        System.out.println();
+                    }
+                }
+                while (!tempPath.isEmpty()) {
+                    if (!finalPath.isEmpty()) {
+                        Node topNode = finalPath.peek();
+                        if (topNode == tempPath.peek()) {
+                            finalPath.pop();
+                        }
+                    }
+                    finalPath.push(tempPath.pop());
+                }
+                if (pDisSorted.isEmpty()) {
+                    break;
+                }
+                lastNode = graph.getNode(finalPath.peek().N);
             }
+            StringBuffer stringBuffer = new StringBuffer();
+            for (Node node : finalPath) {
+                System.out.print(node.N + "->");
+                stringBuffer.append(node.N);
+                stringBuffer.append(",");
+            }
+
+            DataPoint t = new DataPoint(stringBuffer.toString(), "t11");
+
+            //加载历史数据，并且添加要搜寻的数据
+            ArrayList<DataPoint> dataSet = new ArrayList<DataPoint>();
+            int count = 0;
+            for (HashMap.Entry<String, int[]> e : history.entrySet()) {
+                dataSet.add(new DataPoint(e.getKey(), "b" + count));
+                count++;
+            }
+
+            dataSet.add(t);
+
+            //设置原始数据集
+            List<Cluster> finalClusters = startCluster(dataSet, 10, 0.5);
+            //查看结果
+            for (int m = 0; m < finalClusters.size(); m++) {
+                System.out.println(finalClusters.get(m).getClusterName());
+                for (DataPoint dataPoint : finalClusters.get(m).getDataPoints()) {
+                    System.out.println(dataPoint.getDataPointName() + ":" + dataPoint.getData());
+                }
+                System.out.println();
+            }
+            System.out.println("list node:" + t.getDataPointName() + " cluster:" + t.getCluster().getClusterName());
+            Cluster cluster = t.getCluster();
+            List<DataPoint> dps = cluster.getDataPoints();
+            //统计每一条路径中所有已购买商品总数
+            Map<Integer, Double> productNum = new HashMap<>();
+            for (DataPoint dataPoint : dps) {
+                if (t.getData().equals(dataPoint.getData())) {
+                    continue;
+                }
+                int[] products = history.get(dataPoint.getData());
+                for (int product : products) {
+                    if (!productNum.containsKey(product)) {
+                        productNum.put(product, 1.0);
+                    } else {
+                        double num = productNum.get(product);
+                        productNum.put(product, ++num);
+                    }
+                }
+            }
+            //计算一个簇类中商品出现频率
+            for (HashMap.Entry<Integer, Double> e : productNum.entrySet()) {
+                double a = (double) e.getValue();
+                productNum.put(e.getKey(), a / productNum.size());
+            }
+
+            if (productNum.size() == 0||productNum.isEmpty())
+            {
+                break;
+            }
+            for (HashMap.Entry<Integer, Double> e : productNum.entrySet()) {
+                System.out.print("product id:" + e.getKey() + " probability:" + String.format("%4f", e.getValue()) + "   ");
+            }
+            System.out.println();
+            //对所有的product根据probability进行排序,从大到小
+            List<Map.Entry<Integer, Double>> list = new ArrayList<Map.Entry<Integer, Double>>(productNum.entrySet());
+            Collections.sort(list, new Comparator<Map.Entry<Integer, Double>>() {
+                @Override
+                public int compare(Map.Entry<Integer, Double> o1,
+                                   Map.Entry<Integer, Double> o2) {
+                    return -o1.getValue().compareTo(o2.getValue());
+                }
+            });
+            //进行排序 取概率最大的 并且进行路径推荐。最后看看推荐的路径中包含多少还没有购买的商品。
+            //这里取的不应该是最大值，而是根据各个点，带有的总概率算预测接下来的路径推荐，
+            // 看回最初的路径推荐算法
+            Map.Entry<Integer, Double> MaxProbability =   list.get(0);
+
+            break;
         }
     }
 }
@@ -257,10 +352,12 @@ class DataPoint {
     public DataPoint(String data) {
         this.data = data;
     }
-    public DataPoint(String data,String dataPointName) {
+
+    public DataPoint(String data, String dataPointName) {
         this.data = data;
         this.dataPointName = dataPointName;
     }
+
     public DataPoint() {
 
     }

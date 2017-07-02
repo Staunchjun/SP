@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Created by Administrator on 2017/3/21.
  */
-public class Test {
+public class TestGuider {
     public static void main(String[] args){
 //       初始化graph
         Graph graph = InitMap.returnGraph();

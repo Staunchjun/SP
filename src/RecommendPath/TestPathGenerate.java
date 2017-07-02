@@ -12,26 +12,77 @@ import java.util.*;
 /**
  * Created by Administrator on 2017/6/28 0028.
  */
-public class TestPath {
+public class TestPathGenerate {
     //N types of product
     final static int N = 160;
     final static int k = 7;
     final static int M = 100;
-    static Map<Integer, Integer> pLocation;
-    static HashMap<Integer, Double> allProducts;
-    static Map<Integer, Set<Integer>> shelf;
+    public static Map<Integer, Integer> pLocation;
+    private static HashMap<Integer, Double> allProducts;
+    public static Map<Integer, Set<Integer>> shelf;
+    public static Map<String, int[]> history;
+    public static Map<int[], double[]> TNewCustomer;
 
-    public static void main(String[] args) {
+    public TestPathGenerate() {
+        history = new HashMap<String, int[]>();
+        TNewCustomer = new HashMap<int[], double[]>();
         //初始化所有商品 所有概率为0
         InitProducts();
         //所有商品随机分配给16个点 0-15
         FillShelf();
-        //开始产生M条道路啦~~~~
-        List<String> paths = GetMPaths();
-
     }
 
-    private static List<String> GetMPaths() {
+    public  Map<String, int[]> TestPathGenerating() {
+        //开始产生M条道路啦~~~~
+        GetMPaths();
+        return history;
+    }
+    public  Map<int[], double[]> TestTNewCustomer(){
+        //得到T个新用户将要购买的产品列表
+        GetTNewCustomer(10);
+        return TNewCustomer;
+    }
+
+    private  void GetTNewCustomer(int T) {
+        for (int i = 0; i < T; i++) {
+            AssignProbability(allProducts);
+            //对所有的product根据probability进行排序,从大到小
+            List<Map.Entry<Integer, Double>> list = new ArrayList<Map.Entry<Integer, Double>>(allProducts.entrySet());
+            Collections.sort(list, new Comparator<Map.Entry<Integer, Double>>() {
+                @Override
+                public int compare(Map.Entry<Integer, Double> o1,
+                                   Map.Entry<Integer, Double> o2) {
+                    return -o1.getValue().compareTo(o2.getValue());
+                }
+            });
+            //k probability distribution
+            //k, a customer going to buy k products
+            System.out.println();
+            System.out.print("输出待购买商品概率(由高到低):");
+            System.out.println();
+            int[] shopList = new int[k];
+            double[] productProbability = new double[k];
+            int count = 0;
+            for (Map.Entry<Integer, Double> mapping : list) {
+                System.out.println("商品" + mapping.getKey() + "的购买概率" + ":" + mapping.getValue());
+                shopList[count] = mapping.getKey();
+                productProbability[count] = mapping.getValue();
+                count++;
+                if (count == k) {
+                    break;
+                }
+            }
+            TNewCustomer.put(shopList, productProbability);
+            System.out.println();
+            System.out.print("输出待购买商品列表:");
+            System.out.println();
+            for (int toBuy : shopList) {
+                System.out.print(toBuy + " ");
+            }
+        }
+    }
+
+    private static void GetMPaths() {
         List<String> paths = new ArrayList<String>();
         for (int i = 0; i < M; i++) {
             //为商品分配概率  //每一次分配概率都会刷新商品里面的概率值 这里耦合太高了
@@ -45,20 +96,13 @@ public class TestPath {
                     return -o1.getValue().compareTo(o2.getValue());
                 }
             });
-            Stack<Node> path = GenerateRamdomPaths(list);
-            StringBuffer stringBuffer = new StringBuffer();
-            for (Node node : path) {
-                stringBuffer.append(node.N);
-                stringBuffer.append(",");
-            }
-            paths.add(stringBuffer.toString());
+            GenerateRamdomPaths(list);
         }
         System.out.println();
         System.out.println("输出自动产生的路径合集:");
-        for (String s : paths) {
-            System.out.println(s);
+        for (Map.Entry s : history.entrySet()) {
+            System.out.println(s.getKey() + ":" + s.getValue());
         }
-        return paths;
     }
 
     private static void FillShelf() {
@@ -106,7 +150,7 @@ public class TestPath {
         }
     }
 
-    private static Stack<Node> GenerateRamdomPaths(List<Map.Entry<Integer, Double>> list) {
+    private static void GenerateRamdomPaths(List<Map.Entry<Integer, Double>> list) {
         //k probability distribution
         //k, a customer going to buy k products
         System.out.println();
@@ -202,15 +246,17 @@ public class TestPath {
                 break;
             }
             lastNode = graph.getNode(finalPath.peek().N);
-
         }
+        StringBuffer stringBuffer = new StringBuffer();
         for (Node node : finalPath) {
             System.out.print(node.N + "->");
+            stringBuffer.append(node.N);
+            stringBuffer.append(",");
         }
-        return finalPath;
+        history.put(stringBuffer.toString(), shopList);
     }
 
-    private static List<Map.Entry<Integer, Double>> CreateSort(Map<Integer, Double> a, ArrayList<Node> nodes, Graph graph, Node lastNode) {
+    public static List<Map.Entry<Integer, Double>> CreateSort(Map<Integer, Double> a, ArrayList<Node> nodes, Graph graph, Node lastNode) {
         for (Node target : nodes) {
             double Cost = Util.getDis(lastNode, target);
             a.put(target.N, Cost);

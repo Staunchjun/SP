@@ -8,6 +8,7 @@ import java.util.Map;
  */
 public class Customer {
     private int id;
+    private Map<String,List<Product>> history;
 
     public int getId() {
         return id;
@@ -25,5 +26,4 @@ public class Customer {
         this.history = history;
     }
 
-    private Map<String,List<Product>> history;
 }
