@@ -100,7 +100,9 @@ public class Algorithm {
                         }
 
                         Node new_nn = new Node();
-                        insertPq(priorityQueue, n, nn.clone(new_nn), temp_G, temp_H, temp_F);
+                        //这里要把地图上的点提出来，因为地图上的点带有概率。根据传进去 的地图，传进去的有概率就有概率，没有就没有
+                        Node graphNode = graph.getNode(nn.N);
+                        insertPq(priorityQueue, n, graphNode.clone(new_nn), temp_G, temp_H, temp_F);
                     }
 
                 }

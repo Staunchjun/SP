@@ -287,7 +287,7 @@ public class HCluster {
             dataSet.add(t);
 
             //设置原始数据集
-            List<Cluster> finalClusters = startCluster(dataSet, 10, 0.5);
+            List<Cluster> finalClusters = startCluster(dataSet, 7, 0.5);
             //查看结果
             for (int m = 0; m < finalClusters.size(); m++) {
                 System.out.println(finalClusters.get(m).getClusterName());
@@ -343,7 +343,33 @@ public class HCluster {
             // 看回最初的路径推荐算法
             Graph graphWP =InitMap.returnGraphWP(list,testPathGenerate);
             List<Path> paths = Guider.getSingleDestPath(graphWP,node_j_1, graphWP.getNode(testPathGenerate.pLocation.get(restBuy.get(0))), null, 0.1);
-            Path bestPath = paths.get(0);
+
+            System.out.println("要购买但是还没买的：");
+            for (int i:restBuy) {
+            System.out.print(i+" ");
+            }
+            System.out.println();
+            Map<Integer, Set<Integer>> shelf = testPathGenerate.shelf;
+            for (Path p:paths) {
+                for (Node node:p.getNodes()) {
+                    System.out.print(node.N+"<-");
+                }
+                System.out.println();
+                for (Node node:p.getNodes()) {
+                    System.out.print(node.N+":"+node.P+"    ");
+                    Set<Integer> produccts= shelf.get(node.N);
+                    for (int i:restBuy) {
+                        if (produccts.contains(i))
+                        System.out.println("包含要买的："+i);
+                    }
+                }
+                System.out.println();
+            }
+            for (Node node:graphWP.getNodes()) {
+                System.out.println(node.N+":"+node.P);
+            }
+
+//            Path bestPath = paths.get(0);
             break;
         }
     }
