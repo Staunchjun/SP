@@ -48,3 +48,8 @@
     //构造函数 Guider (Graph graph)
     推荐单目标路径List<Path> getSingleDestPath(Graph graph, NodeSql startNode, NodeSql destNode，  List<Node> obs,  double threshold );
     推荐多目标路径 List<Path> getMultiDestPath(Graph graph, NodeSql startNode, List<NodeSql> destNodes，  List<Node> obs,  double threshold );
+
+### 下面做了更新
+    能够自动产生伪造的用户历史行走路线数据见TestPathGenerate.java。并且编写了层次聚类算法对历史行走路线进行聚类，并根据当前用户行走的路线，寻找最相似
+    的行走路线，统计路线簇类中商品的出现频率然后求得概率值，求得的概率值重新赋值给Graph中，路线推荐系统根据概率值重新推荐路线，路线为阈值下的最高概率合计
+    统计推荐路径中有多少将要购买的商品出现在路径上。
