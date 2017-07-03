@@ -161,16 +161,19 @@ public class Algorithm {
         ArrayList<Node> path = new ArrayList();
         ArrayList<Integer> path_BY_edge = new ArrayList();
 
-
-        float tempCost = (float) node.G;
-        float tempUtility = 0;
+        double tempCost = node.G;
+        double tempUtility = 0;
         while (node != null) {
             Node FromNode = node;
             path.add(node);
             node = node.parent;
             Node ToNode = node;
             if (ToNode != null) {
-                tempUtility = (float) (tempUtility + FromNode.getAdjEdge().get(ToNode.N).utility);
+                //下面分别是点存概率和边存概率
+//                tempUtility =  (tempUtility + FromNode.getAdjEdge().get(ToNode.N).utility);
+                tempUtility =  tempUtility + FromNode.P;
+//                tempCost = tempCost+ FromNode.G;
+                tempCost = tempCost+ 1;
                 path_BY_edge.add(FromNode.getAdjEdge().get(ToNode.N).id);
             }
 
@@ -212,7 +215,7 @@ public class Algorithm {
                 System.out.print("impossible to reach");
             } else {
                 Iterator iterator = stack.iterator();
-                System.out.print("The distance is :" + path.G + "------");
+                System.out.print("The distance is :" + path.G+"  the sum of probability"+String.format("%4f", path.U)+ "------");
 
                 while (iterator.hasNext()) {
                     Node temp = (Node) iterator.next();

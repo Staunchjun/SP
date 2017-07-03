@@ -17,6 +17,7 @@ public class TestPathGenerate {
     final static int N = 160;
     final static int k = 7;
     final static int M = 100;
+    final static int NN = 10;
     public static Map<Integer, Integer> pLocation;
     private static HashMap<Integer, Double> allProducts;
     public static Map<Integer, Set<Integer>> shelf;
@@ -101,7 +102,11 @@ public class TestPathGenerate {
         System.out.println();
         System.out.println("输出自动产生的路径合集:");
         for (Map.Entry s : history.entrySet()) {
-            System.out.println(s.getKey() + ":" + s.getValue());
+            System.out.println(s.getKey() +":" );
+            for (int product :(int[])s.getValue()) {
+            System.out.print(product + " ");
+            }
+            System.out.println();
         }
     }
 
@@ -110,7 +115,7 @@ public class TestPathGenerate {
         pLocation = new HashMap<Integer, Integer>();
         for (int i = 0; i < 16; i++) {
             Set<Integer> products = new HashSet<Integer>();
-            for (int j = 0; j < 10; j++) {
+            for (int j = 0; j < NN; j++) {
                 while (true) {
                     Random random = new Random();
                     int productId = random.nextInt(N);

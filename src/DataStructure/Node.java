@@ -51,7 +51,7 @@ public class Node {
         newNode.adjEdge = adjEdge;
         newNode.x = x;
         newNode.y = y;
-//        newNode.P = P;
+        newNode.P = P;
         newNode.G = G;
         newNode.H = H;
         newNode.F = F;

@@ -202,6 +202,8 @@ public class HCluster {
                     restBuy.add(i);
                 }
             }
+
+
             Stack<Node> finalPath = new Stack<Node>();
             Map<Integer, Double> pDis = new HashMap<Integer, Double>();
             //对所有的product根据离入口距离进行排序,从小到大
@@ -264,10 +266,12 @@ public class HCluster {
                 lastNode = graph.getNode(finalPath.peek().N);
             }
             StringBuffer stringBuffer = new StringBuffer();
+            Node node_j_1 = null;
             for (Node node : finalPath) {
                 System.out.print(node.N + "->");
                 stringBuffer.append(node.N);
                 stringBuffer.append(",");
+                node_j_1 = node;
             }
 
             DataPoint t = new DataPoint(stringBuffer.toString(), "t11");
@@ -337,8 +341,9 @@ public class HCluster {
             //进行排序 取概率最大的 并且进行路径推荐。最后看看推荐的路径中包含多少还没有购买的商品。
             //这里取的不应该是最大值，而是根据各个点，带有的总概率算预测接下来的路径推荐，
             // 看回最初的路径推荐算法
-            Map.Entry<Integer, Double> MaxProbability =   list.get(0);
-
+            Graph graphWP =InitMap.returnGraphWP(list,testPathGenerate);
+            List<Path> paths = Guider.getSingleDestPath(graphWP,node_j_1, graphWP.getNode(testPathGenerate.pLocation.get(restBuy.get(0))), null, 0.1);
+            Path bestPath = paths.get(0);
             break;
         }
     }
