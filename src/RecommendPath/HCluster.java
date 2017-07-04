@@ -360,15 +360,12 @@ public class HCluster {
                     Set<Integer> produccts= shelf.get(node.N);
                     for (int i:restBuy) {
                         if (produccts.contains(i))
-                        System.out.println("包含要买的："+i);
+                        System.out.print("包含要买的："+i);
                     }
+                    System.out.println();
                 }
                 System.out.println();
             }
-            for (Node node:graphWP.getNodes()) {
-                System.out.println(node.N+":"+node.P);
-            }
-
 //            Path bestPath = paths.get(0);
             break;
         }

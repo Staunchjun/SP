@@ -174,8 +174,6 @@ public class Algorithm {
                 //下面分别是点存概率和边存概率
 //                tempUtility =  (tempUtility + FromNode.getAdjEdge().get(ToNode.N).utility);
                 tempUtility =  tempUtility + FromNode.P;
-//                tempCost = tempCost+ FromNode.G;
-                tempCost = tempCost+ 1;
                 path_BY_edge.add(FromNode.getAdjEdge().get(ToNode.N).id);
             }
 
