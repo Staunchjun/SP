@@ -4,6 +4,7 @@ import Bean.EdgeSql;
 import Bean.NodeSql;
 import DataStructure.Graph;
 import RecommendPath.TestPathGenerate;
+import RecommendPath.TestPathGenerate2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -80,7 +81,7 @@ public class InitMap {
     Graph graph = new Graph(edgeSqls,nodeSqls);
     return graph;
     }
-    public static Graph returnGraphWP( List<Map.Entry<Integer, Double>> list, TestPathGenerate testPathGenerate)
+    public static Graph returnGraphWP( Map<Integer, Double> list, TestPathGenerate2 testPathGenerate)
     {
         int count = 0;
         NodeSql nodeSql = null;

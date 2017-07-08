@@ -45,6 +45,8 @@ public class TestPathGenerate {
         InitCustomersProducts();
         //所有商品随机分配给16个点 0-15
         FillShelf();
+
+        //***************Generate M Path********************
         //choose type of customer;
         int i = random.nextInt(K);
         //choose nb of products that Ci will buy;
@@ -62,7 +64,18 @@ public class TestPathGenerate {
         }
         System.out.println();
         //Generate M Path
-        GetMPaths();
+        GetPath(shopList);
+        //***************Generate M Path********************
+    }
+
+    private void GetPath(int[] shopList) {
+        //Get product location
+        System.out.println();
+        System.out.println("输出待购买商品位置:");
+        for (int i : shopList)
+            System.out.println("商品" + i + "的位置" + "->" + pLocation.get(i));
+        System.out.println();
+
     }
 
     private void InitCustomersProducts() {

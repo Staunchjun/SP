@@ -5,6 +5,7 @@ import Bean.EdgeSql;
 import Bean.NodeQgisSql;
 import Bean.NodeSql;
 import RecommendPath.TestPathGenerate;
+import RecommendPath.TestPathGenerate2;
 
 import java.util.*;
 
@@ -110,7 +111,7 @@ public class Graph {
         }
     }
 
-    public Graph(List<EdgeSql> EdgeQgisSql, List<NodeSql> NodesBean, List<Map.Entry<Integer, Double>> list, TestPathGenerate testPathGenerate) {
+    public Graph(List<EdgeSql> EdgeQgisSql, List<NodeSql> NodesBean, Map<Integer, Double> list, TestPathGenerate2 testPathGenerate) {
         V = NodesBean.size();// add node 0
         E = EdgeQgisSql.size();
 
@@ -118,7 +119,7 @@ public class Graph {
 
         Map<Integer, Double> nodeP = new HashMap<>();
 
-        for (Map.Entry<Integer, Double> e : list) {
+        for (Map.Entry<Integer, Double> e : list.entrySet()) {
             if (nodeP.containsKey(testPathGenerate.pLocation.get(e.getKey()))) {
                 double p = nodeP.get(testPathGenerate.pLocation.get(e.getKey()));
                 p += e.getValue();
