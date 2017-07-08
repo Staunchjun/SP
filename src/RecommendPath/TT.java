@@ -97,14 +97,15 @@ public class TT {
             ArrayList<DataPoint> dataSet = new ArrayList<DataPoint>();
             int count = 0;
             for (HashMap.Entry<String, Set<Integer>> e : history.entrySet()) {
-                dataSet.add(new DataPoint(e.getKey(), "b" + count));
+                if (e.getKey().length() != 0)
+                    dataSet.add(new DataPoint(e.getKey(), "b" + count));
                 count++;
             }
             //添加顾客J之前的路径;
             dataSet.add(t);
 
             //设置原始数据集
-            List<Cluster> finalClusters = HCluster.startCluster(dataSet, 7, 0.5);
+            List<Cluster> finalClusters = HCluster.startCluster(dataSet, testPathGenerate.K, 0.5);
             //查看结果
             for (int m = 0; m < finalClusters.size(); m++) {
                 System.out.println(finalClusters.get(m).getClusterName());
@@ -113,45 +114,23 @@ public class TT {
                 }
                 System.out.println();
             }
-            System.out.println("list node:" + t.getDataPointName() + " cluster:" + t.getCluster().getClusterName());
-            Cluster cluster = t.getCluster();
-            List<DataPoint> dps = cluster.getDataPoints();
-            //统计每一条路径中所有已购买商品总数
-            Map<Integer, Double> productNum = new HashMap<>();
-            int sum = 0;
-            for (DataPoint dataPoint : dps) {
-                if (t.getData().equals(dataPoint.getData())) {
-                    continue;
-                }
-                Set<Integer> products = history.get(dataPoint.getData());
-                for (int product : products) {
-                    if (!productNum.containsKey(product)) {
-                        productNum.put(product, 1.0);
-                        sum += 1;
-                    } else {
-                        double num = productNum.get(product);
-                        productNum.put(product, ++num);
-                        sum += 1;
-                    }
-                }
-            }
-            //计算一个簇类中商品出现频率,計算所有商品出現的總數，頻率除總數可得到和為1的購買概率分佈。
-            for (HashMap.Entry<Integer, Double> e : productNum.entrySet()) {
-                double a = (double) e.getValue();
-                productNum.put(e.getKey(), a / sum);
+            //计算每一个簇类的概率分布
+            Map<String, Map<Integer, Double>> clusterDistribution = new HashMap<String, Map<Integer, Double>>();
+            for (int m = 0; m < finalClusters.size(); m++) {
+                System.out.println(finalClusters.get(m).getClusterName());
+                Map<Integer, Double> productNum = getClusterDistribution(history, t, finalClusters.get(m));
+                clusterDistribution.put(finalClusters.get(m).getClusterName(), productNum);
+                System.out.println();
             }
 
-            if (productNum.size() == 0 || productNum.isEmpty()) {
-                break;
-            }
-            for (HashMap.Entry<Integer, Double> e : productNum.entrySet()) {
-                System.out.print("product id:" + e.getKey() + " probability:" + String.format("%4f", e.getValue()) + "   ");
-            }
-            System.out.println();
+            System.out.println("list node:" + t.getDataPointName() + " cluster:" + t.getCluster().getClusterName());
+            Cluster cluster = t.getCluster();
+            Map<Integer, Double> ProductProbability = getClusterDistribution(history, t, cluster);
+            if (ProductProbability == null) break;
 
             //带有的总概率算预测接下来的路径推荐，
             // 看回最初的路径推荐算法
-            Graph graphWP = InitMap.returnGraphWP(productNum, testPathGenerate);
+            Graph graphWP = InitMap.returnGraphWP(ProductProbability, testPathGenerate);
             List<Path> paths = Guider.getSingleDestPath(graphWP, node_j_1, graphWP.getNode(Jnode.N), null, 0.1);
 
             System.out.println("要购买但是还没买的：");
@@ -187,8 +166,7 @@ public class TT {
             }
 
             System.out.println();
-            if (bestPath == null)
-            {
+            if (bestPath == null) {
                 continue;
             }
             System.out.println("this is best path with highest utility  :" + bestPath.U);
@@ -196,6 +174,7 @@ public class TT {
                 System.out.print(node.N + "<-");
             }
             System.out.println();
+
             //下面做一個對比 ，已經知道了這個用戶是哪一類的顧客，拿到那一類顧客對所有商品的概率
             int kType = newCustomer.getKey();
             double[] probability = testPathGenerate.CustomersProducts.get(kType);
@@ -204,21 +183,58 @@ public class TT {
             double sumerror = 0;
             double sumErrorMean = 0;
             for (double p : probability) {
-                System.out.println("商品：" + count1 + "路徑簇类算出的概率：" + p + " " + "顾客簇类算出的概率：" + productNum.get(new Integer(count1)));
-                if (productNum.get(new Integer(count1))!= null) {
-                    sumerror = sumerror + Math.abs(productNum.get(new Integer(count1)) - p);
+                System.out.println("商品：" + count1 + "路徑簇类算出的概率：" + p + " " + "顾客簇类算出的概率：" + ProductProbability.get(new Integer(count1)));
+                if (ProductProbability.get(new Integer(count1)) != null) {
+                    sumerror = sumerror + Math.abs(ProductProbability.get(new Integer(count1)) - p);
                     sumErrorMean = sumErrorMean + Math.abs(testPathGenerate.MeanCustomersProducts[count1] - p);
                     errorNum++;
                 }
                 count1++;
             }
             System.out.println("errors:");
-            errors.add(sumerror/errorNum);
-            System.out.println(sumerror/errorNum);
-            System.out.println(sumErrorMean/errorNum);
+            errors.add(sumerror / errorNum);
+            System.out.println(sumerror / errorNum);
+            System.out.println(sumErrorMean / errorNum);
 
             break;
         }
+    }
+
+    private static Map<Integer, Double> getClusterDistribution(Map<String, Set<Integer>> history, DataPoint t, Cluster cluster) {
+        List<DataPoint> dps = cluster.getDataPoints();
+        //统计每一条路径中所有已购买商品总数
+        Map<Integer, Double> productNum = new HashMap<>();
+        int sum = 0;
+        for (DataPoint dataPoint : dps) {
+                if (t.getData().equals(dataPoint.getData())) {
+                    continue;
+                }
+            Set<Integer> products = history.get(dataPoint.getData());
+            for (int product : products) {
+                if (!productNum.containsKey(product)) {
+                    productNum.put(product, 1.0);
+                    sum += 1;
+                } else {
+                    double num = productNum.get(product);
+                    productNum.put(product, ++num);
+                    sum += 1;
+                }
+            }
+        }
+        //计算一个簇类中商品出现频率,計算所有商品出現的總數，頻率除總數可得到和為1的購買概率分佈。
+        for (HashMap.Entry<Integer, Double> e : productNum.entrySet()) {
+            double a = (double) e.getValue();
+            productNum.put(e.getKey(), a / sum);
+        }
+
+        if (productNum.size() == 0 || productNum.isEmpty()) {
+            return null;
+        }
+        for (HashMap.Entry<Integer, Double> e : productNum.entrySet()) {
+            System.out.print("product id:" + e.getKey() + " probability:" + String.format("%4f", e.getValue()) + "   ");
+        }
+        System.out.println();
+        return productNum;
     }
 }
 
