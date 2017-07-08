@@ -23,6 +23,8 @@ public class TestPathGenerate2 {
     final static int NN = 10;
     //给定一个概率分布，这里的概率意思是每顾客对每一种商品的喜好程度，概率和为1。
     public static HashMap<Integer, double[]> CustomersProducts;
+    //所有用户簇类平均的一个概率。
+    public static double[] MeanCustomersProducts = new double[N];
     //T个新的顾客，只知道他们将要购物的清单列表
     final int T = 10;
 
@@ -35,12 +37,14 @@ public class TestPathGenerate2 {
 
     public TestPathGenerate2() {
         Random random = new Random();
-        history = new HashMap<String,Set<Integer>>();
+        history = new HashMap<String, Set<Integer>>();
         TNewCustomer = new HashMap<Integer, Set<Integer>>();
         //初始化所有商品 所有概率为0
         InitProducts();
         //初始化，不用簇类的用户对喜欢不同类型的产品喜好不一样
         InitCustomersProducts();
+        //平均用户簇类
+        MeanCustomerCluster();
         //所有商品随机分配给16个点 0-15
         FillShelf();
 
@@ -53,7 +57,13 @@ public class TestPathGenerate2 {
             //choose which products are bought;
             Stack<Integer> shopList = new Stack<Integer>();
             for (int k = 0; k < nb; k++) {
+                double[] productProbability = CustomersProducts.get(i);
+                double meanPro = 1.0/N;
                 int productId = random.nextInt(N);
+                while (meanPro>productProbability[productId])
+                {
+                    productId = random.nextInt(N);
+                }
                 shopList.add(productId);
             }
             System.out.println();
@@ -64,33 +74,51 @@ public class TestPathGenerate2 {
             System.out.println();
             GetPath(shopList);
         }
-         //***************Generate M Path********************
+        //***************Generate M Path********************
 
-         //***************Generate T Customer********************
+        //***************Generate T Customer********************
 
-            for (int L = 0; L < T; L++) {
-                //choose type of customer;
-                int i = random.nextInt(K);
-                //choose nb of products that Ci will buy;
-                int nb = random.nextInt(N / 4);
-                //choose which products are bought;
-                Set<Integer> shopList = new HashSet<Integer>();
-                for (int k = 0; k < nb; k++) {
-                    int productId = random.nextInt(N);
-                    shopList.add(productId);
+        for (int L = 0; L < T; L++) {
+            //choose type of customer;
+            int i = random.nextInt(K);
+            //choose nb of products that Ci will buy;
+            int nb = random.nextInt(N / 4);
+            //choose which products are bought;
+            Set<Integer> shopList = new HashSet<Integer>();
+            for (int k = 0; k < nb; k++) {
+                double[] productProbability = CustomersProducts.get(i);
+                double meanPro = 1.0/N;
+                int productId = random.nextInt(N);
+                while (meanPro>productProbability[productId])
+                {
+                    productId = random.nextInt(N);
                 }
-                System.out.println();
-                System.out.println("输出待购买商品列表:");
-                for (Integer toBuy : shopList) {
-                    System.out.print(toBuy + " ");
-                }
-                TNewCustomer.put(L,shopList);
+                shopList.add(productId);
             }
+            System.out.println();
+            System.out.println("输出待购买商品列表:");
+            for (Integer toBuy : shopList) {
+                System.out.print(toBuy + " ");
+            }
+            TNewCustomer.put(L, shopList);
+        }
+    }
+
+    private void MeanCustomerCluster() {
+        for (Map.Entry<Integer, double[]> e :CustomersProducts.entrySet()) {
+                 double[] p =  e.getValue();
+            for (int i = 0; i < p.length; i++) {
+                MeanCustomersProducts[i] += p[i];
+            }
+        }
+        for (int i = 0; i < MeanCustomersProducts.length; i++) {
+            MeanCustomersProducts[i] = MeanCustomersProducts[i]/CustomersProducts.size();
+        }
     }
 
     private void GetPath(Stack<Integer> shopList) {
         Set<Integer> shopListSet = new HashSet<Integer>();
-        for (Integer i:shopList) {
+        for (Integer i : shopList) {
             shopListSet.add(i);
         }
         //Get product location

@@ -12,12 +12,13 @@ import java.util.*;
  * Created by Administrator on 2017/7/7 0007.
  */
 public class TT {
-    public static void  main(String[] args) {
+    public static void main(String[] args) {
         TestPathGenerate2 testPathGenerate = new TestPathGenerate2();
 
         Map<String, Set<Integer>> history = testPathGenerate.history;
         Map<Integer, Set<Integer>> TNewCustomer = testPathGenerate.TNewCustomer;
 
+        List<Double> errors = new ArrayList<Double>();
         for (Map.Entry<Integer, Set<Integer>> newCustomer : TNewCustomer.entrySet()) {
             //Generating paths;
             // 初始化graph
@@ -25,25 +26,24 @@ public class TT {
             Set<Node> nodes = new HashSet<Node>();
             int alyeadyBuy = 0;
             List<Integer> restBuy = new ArrayList<Integer>();
-            int J = (int) (newCustomer.getValue().size()-newCustomer.getValue().size()*0.5);
+            int J = (int) (newCustomer.getValue().size() - newCustomer.getValue().size() * 0.5);
             Node Jnode = null;
             for (int i : newCustomer.getValue()) {
-                if (alyeadyBuy <=J) {
-                    if (alyeadyBuy == J-1) {
+                if (alyeadyBuy <= J) {
+                    if (alyeadyBuy == J - 1) {
                         Jnode = graph.getNode(testPathGenerate.pLocation.get(i));
                     }
                     nodes.add(graph.getNode(testPathGenerate.pLocation.get(i)));
                     alyeadyBuy++;
-                }
-                else {
+                } else {
                     restBuy.add(i);
                 }
             }
 
             System.out.println();
             System.out.println("已经路过的点:");
-            for (Node node:nodes) {
-                System.out.print(node.N+"  ");
+            for (Node node : nodes) {
+                System.out.print(node.N + "  ");
             }
 
             Stack<Node> finalPath = new Stack<Node>();
@@ -53,7 +53,7 @@ public class TT {
                 List<Path> paths = Guider.getSingleDestPath(graph, lastNode, des, null, 0.1);
                 if (paths.isEmpty()) {
                     //出现了自己去自己,eg:  4->4
-                        nodes.remove(graph.getNode(des.N));
+                    nodes.remove(graph.getNode(des.N));
                     continue;
                 }
                 Path bestPath = paths.get(0);
@@ -61,7 +61,7 @@ public class TT {
                 for (Node node : bestPath.getNodes()) {
                     tempPath.push(node);
                     if (nodes.contains(graph.getNode(node.N))) {
-                            nodes.remove(graph.getNode(node.N));
+                        nodes.remove(graph.getNode(node.N));
                     }
                 }
                 if (nodes.isEmpty()) {
@@ -118,6 +118,7 @@ public class TT {
             List<DataPoint> dps = cluster.getDataPoints();
             //统计每一条路径中所有已购买商品总数
             Map<Integer, Double> productNum = new HashMap<>();
+            int sum = 0;
             for (DataPoint dataPoint : dps) {
                 if (t.getData().equals(dataPoint.getData())) {
                     continue;
@@ -126,20 +127,21 @@ public class TT {
                 for (int product : products) {
                     if (!productNum.containsKey(product)) {
                         productNum.put(product, 1.0);
+                        sum += 1;
                     } else {
                         double num = productNum.get(product);
                         productNum.put(product, ++num);
+                        sum += 1;
                     }
                 }
             }
-            //计算一个簇类中商品出现频率
+            //计算一个簇类中商品出现频率,計算所有商品出現的總數，頻率除總數可得到和為1的購買概率分佈。
             for (HashMap.Entry<Integer, Double> e : productNum.entrySet()) {
                 double a = (double) e.getValue();
-                productNum.put(e.getKey(), a / productNum.size());
+                productNum.put(e.getKey(), a / sum);
             }
 
-            if (productNum.size() == 0||productNum.isEmpty())
-            {
+            if (productNum.size() == 0 || productNum.isEmpty()) {
                 break;
             }
             for (HashMap.Entry<Integer, Double> e : productNum.entrySet()) {
@@ -149,36 +151,75 @@ public class TT {
 
             //带有的总概率算预测接下来的路径推荐，
             // 看回最初的路径推荐算法
-            Graph graphWP =InitMap.returnGraphWP(productNum,testPathGenerate);
-            List<Path> paths = Guider.getSingleDestPath(graphWP,node_j_1, graphWP.getNode(Jnode.N), null, 0.1);
+            Graph graphWP = InitMap.returnGraphWP(productNum, testPathGenerate);
+            List<Path> paths = Guider.getSingleDestPath(graphWP, node_j_1, graphWP.getNode(Jnode.N), null, 0.1);
 
             System.out.println("要购买但是还没买的：");
-            for (int i:restBuy) {
-                System.out.print(i+" ");
+            for (int i : restBuy) {
+                System.out.print(i + " ");
             }
             System.out.println();
             Map<Integer, Set<Integer>> shelf = testPathGenerate.shelf;
 
-            for (Path p:paths) {
-                for (Node node:p.getNodes()) {
-                    System.out.print(node.N+"<-");
+            for (Path p : paths) {
+                for (Node node : p.getNodes()) {
+                    System.out.print(node.N + "<-");
                 }
                 System.out.println();
-                for (Node node:p.getNodes()) {
-                    System.out.print(node.N+":"+node.P+"    ");
-                    Set<Integer> produccts= shelf.get(node.N);
-                    for (int i:restBuy) {
+                for (Node node : p.getNodes()) {
+                    System.out.print(node.N + ":" + node.P + "    ");
+                    Set<Integer> produccts = shelf.get(node.N);
+                    for (int i : restBuy) {
                         if (produccts.contains(i))
-                            System.out.print("包含要买的："+i);
+                            System.out.print("包含要买的：" + i);
                     }
                     System.out.println();
                 }
                 System.out.println();
             }
-            Path bestPath = paths.get(0);
+            double MaxUtility = Integer.MIN_VALUE;
+            Path bestPath = null;
+            for (Path path : paths) {
+                if (MaxUtility < path.U) {
+                    MaxUtility = path.U;
+                    bestPath = path;
+                }
+            }
+
+            System.out.println();
+            if (bestPath == null)
+            {
+                continue;
+            }
+            System.out.println("this is best path with highest utility  :" + bestPath.U);
+            for (Node node : bestPath.getNodes()) {
+                System.out.print(node.N + "<-");
+            }
+            System.out.println();
+            //下面做一個對比 ，已經知道了這個用戶是哪一類的顧客，拿到那一類顧客對所有商品的概率
+            int kType = newCustomer.getKey();
+            double[] probability = testPathGenerate.CustomersProducts.get(kType);
+            int count1 = 0;
+            int errorNum = 0;
+            double sumerror = 0;
+            double sumErrorMean = 0;
+            for (double p : probability) {
+                System.out.println("商品：" + count1 + "路徑簇类算出的概率：" + p + " " + "顾客簇类算出的概率：" + productNum.get(new Integer(count1)));
+                if (productNum.get(new Integer(count1))!= null) {
+                    sumerror = sumerror + Math.abs(productNum.get(new Integer(count1)) - p);
+                    sumErrorMean = sumErrorMean + Math.abs(testPathGenerate.MeanCustomersProducts[count1] - p);
+                    errorNum++;
+                }
+                count1++;
+            }
+            System.out.println("errors:");
+            errors.add(sumerror/errorNum);
+            System.out.println(sumerror/errorNum);
+            System.out.println(sumErrorMean/errorNum);
+
             break;
         }
-        }
     }
+}
 
 
