@@ -122,7 +122,7 @@ public class TT {
                 clusterDistribution.put(finalClusters.get(m).getClusterName(), productNum);
                 System.out.println();
             }
-
+            //计算t簇类的概率分布
             System.out.println("list node:" + t.getDataPointName() + " cluster:" + t.getCluster().getClusterName());
             Cluster cluster = t.getCluster();
             Map<Integer, Double> ProductProbability = getClusterDistribution(history, t, cluster);
