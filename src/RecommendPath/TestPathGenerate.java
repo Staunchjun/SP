@@ -84,6 +84,7 @@ public class TestPathGenerate {
         CustomersProducts = new HashMap<Integer, double[]>();
         for (int i = 0; i < K; i++) {
             double[] products = getRandDistArray(N, 1.0);
+
             CustomersProducts.put(new Integer(i), products);
         }
     }

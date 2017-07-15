@@ -113,7 +113,7 @@ public class HCluster {
             tempDataPoints.add(tempDataPoint);
             // 声明一个类簇，并且将给类簇设定名字、增加样本点
             Cluster tempCluster = new Cluster();
-            tempCluster.setClusterName("demo.Cluster " + String.valueOf(i));
+            tempCluster.setClusterName(String.valueOf(i));
             tempCluster.setDataPoints(tempDataPoints);
             // 将样本点的类簇设置为tempCluster
             tempDataPoint.setCluster(tempCluster);

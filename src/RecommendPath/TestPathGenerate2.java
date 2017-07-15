@@ -22,7 +22,7 @@ public class TestPathGenerate2 {
     //每个点有多少种类的商品。
     final static int NN = 10;
     //给定一个概率分布，这里的概率意思是每顾客对每一种商品的喜好程度，概率和为1。
-    public static HashMap<Integer, double[]> CustomersProducts;
+    public static Map<Integer, double[]> CustomersProducts;
     //所有用户簇类平均的一个概率。
     public static double[] MeanCustomersProducts = new double[N];
     //T个新的顾客，只知道他们将要购物的清单列表
