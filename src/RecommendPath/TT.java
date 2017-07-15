@@ -115,40 +115,65 @@ public class TT {
                 System.out.println();
             }
             //计算每一个簇类的概率分布
-            Map<String, Map<Integer, Double>> clusterDistribution = new HashMap<String, Map<Integer, Double>>();
+            Map<Integer, Map<String, Map<Integer, Double>>> clusterDistributions = new HashMap<Integer, Map<String, Map<Integer, Double>>>();
+            int countCluster = 0;
             for (int m = 0; m < finalClusters.size(); m++) {
                 System.out.println(finalClusters.get(m).getClusterName());
+                Map<String, Map<Integer, Double>> clusterDistribution = new HashMap<String, Map<Integer, Double>>();
                 Map<Integer, Double> productNum = getClusterDistribution(history, t, finalClusters.get(m));
-                clusterDistribution.put(finalClusters.get(m).getClusterName(), productNum);
-                System.out.println();
-            }
-            //每一个簇类的概率,商品不存在的补0
-            for (Map.Entry<String, Map<Integer, Double>> e : clusterDistribution.entrySet()) {
-                for (int i = 0; i < testPathGenerate.N; i++) {
-                    if (!e.getValue().containsKey(i)) {
-                        e.getValue().put(i, 0.0);
+                clusterDistribution.put((finalClusters.get(m).getClusterName()), productNum);
+                //每一个簇类的概率,商品不存在的补0
+                for (Map.Entry<String, Map<Integer, Double>> e : clusterDistribution.entrySet()) {
+                    for (int i = 0; i < testPathGenerate.N; i++) {
+                        if (!e.getValue().containsKey(i)) {
+                            e.getValue().put(i, 0.0);
+                        }
                     }
                 }
+                clusterDistributions.put(countCluster, clusterDistribution);
+                countCluster++;
+                System.out.println();
             }
+            //各个簇类和平均Customer的差值
+            List<Double> errListWithMean = new ArrayList<>();
+            for (int i = 0; i < 7; i++) {
+                int productNum = testPathGenerate.MeanCustomersProducts.length;
+                Map<String, Map<Integer, Double>> clusterDistributionTemp = clusterDistributions.get(i);
+                double[] distributionByPath = new double[productNum];
+                for (Map.Entry<String, Map<Integer, Double>> e : clusterDistributionTemp.entrySet()) {
+                    Map<Integer, Double> ee = e.getValue();
+                    for (Map.Entry<Integer, Double> eee : ee.entrySet()) {
+                        distributionByPath[eee.getKey()] = eee.getValue();
+                    }
+                }
+                double error = 0;
+                for (int k = 0; k < productNum; k++) {
+                    double pByPath = distributionByPath[k];
+                    double pByCustomer = testPathGenerate.MeanCustomersProducts[k];
+                    error += (Math.abs(pByCustomer - pByPath));
+
+                }
+                errListWithMean.add(error / productNum);
+            }
+
             //建立一个Error Map 配对簇类(自己的cluster后计算的概率分布和给定的用户的概率分布error)
-            int errorsMapLength = clusterDistribution.size();
+            int errorsMapLength = clusterDistributions.size();
             double[][] errorsMap = new double[errorsMapLength][errorsMapLength];
             //i ->Path cluster j-> given customer cluster
-            for (int i = 0; i < errorsMapLength ; i++) {
+            for (int i = 0; i < errorsMapLength; i++) {
                 for (int j = 0; j < errorsMapLength; j++) {
-                    double[] distributionByCustomer =  testPathGenerate.CustomersProducts.get(j);
+                    double[] distributionByCustomer = testPathGenerate.CustomersProducts.get(j);
                     int productNum = distributionByCustomer.length;
 
-                    Map<Integer, Double> distributionByPathMap = clusterDistribution.get(String.valueOf(i));
+                    Map<String, Map<Integer, Double>> clusterDistributionTemp = clusterDistributions.get(i);
                     double[] distributionByPath = new double[productNum];
-                    try {
-                    for (Map.Entry <Integer, Double> e:distributionByPathMap.entrySet()) {
-                            distributionByPath[e.getKey()] = e.getValue();
+                    for (Map.Entry<String, Map<Integer, Double>> e : clusterDistributionTemp.entrySet()) {
+                        Map<Integer, Double> ee = e.getValue();
+                        for (Map.Entry<Integer, Double> eee : ee.entrySet()) {
+                            distributionByPath[eee.getKey()] = eee.getValue();
+                        }
                     }
-                    }catch (RuntimeException e)
-                    {
-                       continue;
-                    }
+
                     double error = 0;
                     for (int k = 0; k < productNum; k++) {
 
@@ -157,10 +182,11 @@ public class TT {
                         error += (Math.abs(pByCustomer - pByPath));
 
                     }
-                    errorsMap[i][j] = error;
+                    errorsMap[i][j] = error / productNum;
                 }
             }
-            Map<Integer,Integer> CPpair = new HashMap<Integer,Integer>();
+            Map<Integer, Integer> CPpair = new HashMap<Integer, Integer>();
+            List<Double> errList = new ArrayList<>();
             List<Integer> PathVisited = new ArrayList<Integer>();
             List<Integer> CustomerVisited = new ArrayList<Integer>();
             for (int i = 0; i < errorsMapLength; i++) {
@@ -170,23 +196,23 @@ public class TT {
                 for (int j = 0; j < errorsMapLength; j++) {
 
                     for (int k = 0; k < errorsMapLength; k++) {
-                            if (PathVisited.contains(j) || CustomerVisited.contains(k))
+                        if (PathVisited.contains(j) || CustomerVisited.contains(k))
                             continue;
-                            if (errorsMap[j][k] < min) {
-                                   min = errorsMap[j][k];
-                                   PathClusterIndex = j;
-                                   CustomerClusterIndex = k;
-                            }
+                        if (errorsMap[j][k] < min) {
+                            min = errorsMap[j][k];
+                            PathClusterIndex = j;
+                            CustomerClusterIndex = k;
+                        }
                     }
                 }
-                CPpair.put(PathClusterIndex,CustomerClusterIndex);
+                CPpair.put(PathClusterIndex, CustomerClusterIndex);
                 PathVisited.add(PathClusterIndex);
                 CustomerVisited.add(CustomerClusterIndex);
+                errList.add(min);
             }
             System.out.println("配对结果(左边为路径聚合概率分布,右边为给定概率分布):");
             System.out.println(CPpair);
-            System.out.println(CPpair);
-            System.out.println(CPpair);
+            System.out.println(errList);
             //计算t簇类的概率分布
             System.out.println("list node:" + t.getDataPointName() + " cluster:" + t.getCluster().getClusterName());
             Cluster cluster = t.getCluster();
@@ -269,8 +295,19 @@ public class TT {
 
             System.out.println("配对结果(左边为路径聚合概率分布,右边为给定概率分布):");
             System.out.println(CPpair);
-            System.out.println(CPpair);
-            System.out.println(CPpair);
+            double meanError = 0;
+            for (Double d : errList) {
+                System.out.println(d + " ");
+                meanError += d;
+            }
+            System.out.println("平均误差：" + meanError + " ");
+            System.out.println("每个簇类和平均顾客的比较:");
+            double meanError2 = 0;
+            for (Double d : errListWithMean) {
+                System.out.println(d + " ");
+                meanError2 += d;
+            }
+            System.out.println("平均误差：" + meanError2 + " ");
             break;
         }
     }
