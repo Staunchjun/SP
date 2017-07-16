@@ -33,7 +33,7 @@ public class TestPathGenerate {
     public static Map<Integer, Set<Integer>> shelf;
     public static Map<String, Set<Integer>> history;
     public static Map<Integer, Set<Integer>> TNewCustomer;
-
+    public static int[][] shopLists;
 
     public TestPathGenerate() {
         Random random = new Random();
@@ -49,6 +49,7 @@ public class TestPathGenerate {
         FillShelf();
 
         //***************Generate M Path********************
+        shopLists = new int[N][M];
         for (int L = 0; L < M; L++) {
             //choose type of customer;
             int i = random.nextInt(K);
@@ -73,6 +74,11 @@ public class TestPathGenerate {
             }
             System.out.println();
             GetPath(shopList);
+            //对购买列表进行聚类
+            for (Integer toBuy : shopList) {
+                shopLists[toBuy][L] = 1;
+            }
+
         }
         //***************Generate M Path********************
 
