@@ -49,7 +49,7 @@ public class TestPathGenerate {
         FillShelf();
 
         //***************Generate M Path********************
-        shopLists = new int[N][M];
+        shopLists = new int[M][N];
         for (int L = 0; L < M; L++) {
             //choose type of customer;
             int i = random.nextInt(K);
@@ -76,7 +76,7 @@ public class TestPathGenerate {
             GetPath(shopList);
             //对购买列表进行聚类
             for (Integer toBuy : shopList) {
-                shopLists[toBuy][L] = 1;
+                shopLists[L][toBuy] = 1;
             }
 
         }

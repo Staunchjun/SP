@@ -6,38 +6,15 @@ import java.util.Scanner;
 /**
  * Created by Administrator on 2017/7/16 0016.
  */
-class point {
-    public float x = 0;
-    public float y = 0;
-    public int flage = -1;
 
-    public float getX() {
-        return x;
-    }
-
-    public void setX(float x) {
-        this.x = x;
-    }
-
-    public float getY() {
-        return y;
-    }
-
-    public void setY(float y) {
-        this.y = y;
-    }
-}
 public class K_means {
-    point[] ypo;// 点集
-    point[] pacore = null;// old聚类中心
-    point[] pacoren = null;// new聚类中心
+    int[] ypo;// 点集
+    int[] pacore = null;// old聚类中心
+    int[] pacoren = null;// new聚类中心
 
     // 初试聚类中心，点集
-    public void productpoint() {
-        Scanner cina = new Scanner(System.in);
-        System.out.print("请输入聚类中点的个数（随机产生）：");
-        int num = cina.nextInt();
-
+    public void productpoint(int[][] shopLists) {
+        int num = shopLists.length;
         ypo = new point[num];
         // 随机产生点
         for (int i = 0; i < num; i++) {
@@ -143,11 +120,15 @@ public class K_means {
         }
     }
 
-    public double distpoint(point px, point py) {
+    public double distpoint(int[] px, int[] py) {
 
-        return Math.sqrt(Math.pow((px.x - py.x), 2)
-                + Math.pow((px.y - py.y), 2));
+        int length = px.length;
+        double sum = 0;
+        for (int i = 0; i < length; i++) {
+            sum = sum + Math.pow((px[i] - py[i]), 2);
 
+        }
+        return Math.sqrt(sum);
     }
 
     public void change_oldtonew(point[] old, point[] news) {
@@ -190,7 +171,7 @@ public class K_means {
         // TODO Auto-generated method stub
 
         K_means kmean = new K_means();
-        kmean.productpoint();
+        kmean.productpoint(null);
         kmean.movecore();
     }
 
