@@ -53,7 +53,7 @@ public class TestPathGenerate2 {
             //choose type of customer;
             int i = random.nextInt(K);
             //choose nb of products that Ci will buy;
-            int nb = random.nextInt(N / 4);
+            int nb = random.nextInt(N / 16);
             //choose which products are bought;
             Stack<Integer> shopList = new Stack<Integer>();
             for (int k = 0; k < nb; k++) {
