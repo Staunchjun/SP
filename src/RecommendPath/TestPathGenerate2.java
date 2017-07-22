@@ -27,6 +27,12 @@ public class TestPathGenerate2 {
     public static double[] MeanCustomersProducts = new double[N];
     //T个新的顾客，只知道他们将要购物的清单列表
     final int T = 10;
+    //所有的购物列表集合
+    public ArrayList<ArrayList<Integer>> shopLists;
+
+    public ArrayList<ArrayList<Integer>> getShopLists() {
+        return shopLists;
+    }
 
     public static Map<Integer, Integer> pLocation;
     private static HashMap<Integer, Double> allProducts;
@@ -49,13 +55,14 @@ public class TestPathGenerate2 {
         FillShelf();
 
         //***************Generate M Path********************
+        shopLists = new ArrayList<ArrayList<Integer>>();
         for (int L = 0; L < M; L++) {
             //choose type of customer;
             int i = random.nextInt(K);
             //choose nb of products that Ci will buy;
             int nb = random.nextInt(N / 16);
             //choose which products are bought;
-            Stack<Integer> shopList = new Stack<Integer>();
+            ArrayList<Integer> shopList = new ArrayList<>();
             for (int k = 0; k < nb; k++) {
                 double[] productProbability = CustomersProducts.get(i);
                 double meanPro = 1.0/N;
@@ -71,6 +78,7 @@ public class TestPathGenerate2 {
             for (Integer toBuy : shopList) {
                 System.out.print(toBuy + " ");
             }
+            shopLists.add(shopList);
             System.out.println();
             GetPath(shopList);
         }
@@ -116,7 +124,15 @@ public class TestPathGenerate2 {
         }
     }
 
-    private void GetPath(Stack<Integer> shopList) {
+    private void GetPath(ArrayList<Integer> shopList1) {
+        Stack<Integer> shopListTemp = new Stack<>();
+        Stack<Integer> shopList = new Stack<>();
+        for (Integer i :shopList1) {
+            shopListTemp.push(i);
+        }
+        for (Integer i:shopListTemp) {
+            shopList.push(i);
+        }
         Set<Integer> shopListSet = new HashSet<Integer>();
         for (Integer i : shopList) {
             shopListSet.add(i);
