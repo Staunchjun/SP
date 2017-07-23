@@ -15,6 +15,7 @@ import java.util.*;
 public class TestPathGenerate2 {
     //N types of product eg:P1,P2,P3...Pn;表明有多少种商品
     final static int N = 160;
+    public static final int Npi = N / 4;
     //K types of customer eg:C1,C2,C3...Cn;表明有多少类型的顾客
     final static int K = 7;
     //M paths 表示要运行多少次，产生多少路径
@@ -60,7 +61,7 @@ public class TestPathGenerate2 {
             //choose type of customer;
             int i = random.nextInt(K);
             //choose nb of products that Ci will buy;
-            int nb = random.nextInt(N / 16);
+            int nb = random.nextInt(Npi);
             //choose which products are bought;
             ArrayList<Integer> shopList = new ArrayList<>();
             for (int k = 0; k < nb; k++) {

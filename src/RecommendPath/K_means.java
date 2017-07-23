@@ -1,9 +1,6 @@
 package RecommendPath;
 
-import java.util.ArrayList;
-import java.util.Random;
-import java.util.Scanner;
-import java.util.Stack;
+import java.util.*;
 
 public class K_means {
     private int k;// 分成多少簇
@@ -179,31 +176,54 @@ public class K_means {
                 int[] newCenter = new int[TestPathGenerate2.N];
                 for (int j = 0; j < n; j++) {
                     for (int l = 0; l < TestPathGenerate2.N; l++) {
-                    newCenter[l] += cluster.get(i).get(j)[l];
+                        newCenter[l] += cluster.get(i).get(j)[l];
                     }
                 }
                 // 设置一个平均值
                 for (int l = 0; l < TestPathGenerate2.N; l++) {
-                    newCenter[l] = newCenter[l]/n;
+                    newCenter[l] = newCenter[l] / n;
                 }
                 center.set(i, newCenter);
             }
         }
     }
 
-    public void printDataArray(ArrayList<int[]> dataArray,
+    public Map<Integer, Double> printDataArray(ArrayList<int[]> dataArray,
                                String dataArrayName) {
-            System.out.println();
+        System.out.println(dataArrayName);
         //打印数据
         for (int i = 0; i < dataArray.size(); i++) {
             System.out.print("print:(");
             for (int j = 0; j < dataArray.get(i).length; j++) {
-            System.out.print(dataArray.get(i)[j] + "," );
+                System.out.print(dataArray.get(i)[j] + ",");
             }
             System.out.print(")");
-        System.out.println();
+            System.out.println();
         }
         System.out.println("===================================");
+        //统计 每个簇类 商品的概率
+        Map<Integer, Double> pro = new HashMap<Integer, Double>();
+        for (int[] list : dataArray) {
+            for (int i = 0; i < list.length; i++) {
+                if (list[i] == 1) {
+                    if (pro.containsKey(i)) {
+                        Double nu = pro.get(i);
+                        nu++;
+                        pro.put(i, nu);
+                    } else {
+                        pro.put(i, 1.0);
+                    }
+                }
+            }
+        }
+        for (int i = 0; i < TestPathGenerate2.N; i++) {
+            if (!pro.containsKey(i))
+                pro.put(i,0.0);
+        }
+        for (Map.Entry<Integer, Double> e : pro.entrySet()) {
+            pro.put(e.getKey(), e.getValue() / TestPathGenerate2.N);
+        }
+        return pro;
     }
 
     void kmeans() {
@@ -240,8 +260,68 @@ public class K_means {
         //得到聚类结果
         ArrayList<ArrayList<int[]>> cluster = k.getCluster();
         //查看结果
+        Map<String,Map<Integer, Double>> clusterDistributions = new HashMap<>();
         for (int i = 0; i < cluster.size(); i++) {
-            k.printDataArray(cluster.get(i), "cluster[" + i + "]");
+            Map<Integer, Double> pro = k.printDataArray(cluster.get(i), "cluster[" + i + "]");
+            clusterDistributions.put(String.valueOf(i),pro);
         }
+        //对比cluster和用户簇类的相差多少，重复之前步骤
+        //建立一个Error Map 配对簇类(自己的cluster后计算的概率分布和给定的用户的概率分布error)
+        int errorsMapLength = clusterDistributions.size();
+        double[][] errorsMap = new double[errorsMapLength][errorsMapLength];
+        //i ->Path cluster j-> given customer cluster
+        for (int i = 0; i < errorsMapLength; i++) {
+            for (int j = 0; j < errorsMapLength; j++) {
+                double[] distributionByCustomer = tes.CustomersProducts.get(j);
+                int productNum = distributionByCustomer.length;
+                Map<Integer, Double> clusterDistributionTemp = clusterDistributions.get(String.valueOf(i));
+                double[] distributionByProduct = new double[productNum];
+                for (Map.Entry<Integer, Double> e : clusterDistributionTemp.entrySet()) {
+                        distributionByProduct[e.getKey()] = e.getValue();
+                }
+                double error = 0;
+                for (int m = 0; m < productNum; m++) {
+                    double pByPath = distributionByProduct[m];
+                    double pByCustomer = distributionByCustomer[m];
+                    error += (Math.abs(pByCustomer - pByPath));
+                }
+                errorsMap[i][j] = error / productNum;
+            }
+        }
+        Map<Integer, Integer> CPpair = new HashMap<Integer, Integer>();
+        List<Double> errList = new ArrayList<>();
+        List<Integer> PathVisited = new ArrayList<Integer>();
+        List<Integer> CustomerVisited = new ArrayList<Integer>();
+        for (int i = 0; i < errorsMapLength; i++) {
+            double min = Integer.MAX_VALUE;
+            int CustomerClusterIndex = 0;
+            int PathClusterIndex = 0;
+            for (int j = 0; j < errorsMapLength; j++) {
+
+                for (int n = 0; n < errorsMapLength; n++) {
+                    if (PathVisited.contains(j) || CustomerVisited.contains(k))
+                        continue;
+                    if (errorsMap[j][n] < min) {
+                        min = errorsMap[j][n];
+                        PathClusterIndex = j;
+                        CustomerClusterIndex = n;
+                    }
+                }
+            }
+            CPpair.put(PathClusterIndex, CustomerClusterIndex);
+            PathVisited.add(PathClusterIndex);
+            CustomerVisited.add(CustomerClusterIndex);
+            errList.add(min);
+        }
+        System.out.println("配对结果(左边为商品聚合概率分布,右边为给定概率分布):");
+        System.out.println(CPpair);
+        System.out.println(errList);
+        double meanError = 0;
+        for (Double d : errList) {
+            meanError += d;
+        }
+        System.out.println("平均概率：");
+        System.out.println(meanError/errList.size());
+
     }
 }
