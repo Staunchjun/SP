@@ -247,12 +247,12 @@ public class K_means {
     }
 
     public static void main(String[] args) {
-        //初始化一个Kmean对象，将k置为3
-        int num;
-        System.out.println("输入要分为的类数：");
-        num = (new Scanner(System.in)).nextInt();
-        K_means k = new K_means(num);
         TestPathGenerate2 tes = new TestPathGenerate2();
+        //初始化一个Kmean对象，将k置为3
+        int num = tes.K;
+//        System.out.println("输入要分为的类数：");
+//        num = (new Scanner(System.in)).nextInt();
+        K_means k = new K_means(num);
 //        设置原始数据集
         k.setDataSet(tes.getShopLists());
         //执行算法
@@ -316,6 +316,26 @@ public class K_means {
         System.out.println("配对结果(左边为商品聚合概率分布,右边为给定概率分布):");
         System.out.println(CPpair);
         System.out.println(errList);
+
+
+        //各个簇类和平均Customer的差值
+        List<Double> errListWithMean = new ArrayList<>();
+        for (int i = 0; i < 7; i++) {
+            int productNum = tes.MeanCustomersProducts.length;
+            Map<Integer, Double> clusterDistributionTemp = clusterDistributions.get(String.valueOf(i));
+            double[] distributionByPath = new double[productNum];
+            for (Map.Entry<Integer, Double> e : clusterDistributionTemp.entrySet()) {
+                    distributionByPath[e.getKey()] = e.getValue();
+                }
+            double error = 0;
+            for (int o = 0; o < TestPathGenerate2.N; o++) {
+                double pByPath = distributionByPath[o];
+                double pByCustomer = tes.MeanCustomersProducts[o];
+                error += (Math.abs(pByCustomer - pByPath));
+            }
+            errListWithMean.add(error / productNum);
+        }
+
         double meanError = 0;
         for (Double d : errList) {
             meanError += d;
@@ -323,5 +343,11 @@ public class K_means {
         System.out.println("平均概率：");
         System.out.println(meanError/errList.size());
 
+        System.out.println("每个簇类和平均顾客的比较:");
+        double meanError2 = 0;
+        for (Double d : errListWithMean) {
+            meanError2 += d;
+        }
+        System.out.println("平均误差：" + meanError2/errListWithMean.size() + " ");
     }
 }
