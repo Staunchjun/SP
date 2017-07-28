@@ -340,7 +340,7 @@ public class K_means {
         for (Double d : errList) {
             meanError += d;
         }
-        System.out.println("平均概率：");
+        System.out.println("每个簇类和顾客簇类的比较:：");
         System.out.println(meanError/errList.size());
 
         System.out.println("每个簇类和平均顾客的比较:");
