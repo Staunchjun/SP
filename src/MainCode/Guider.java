@@ -12,9 +12,18 @@ import static Util.IntegerPath.IntegerPath;
  * Created by ruan on 9/12/16.
  */
 public  class Guider {
-
+    /**
+     *
+     * @param targets
+     * @param StartNode
+     * @param graph
+     * @param obstacles
+     * @param threshold
+     * @param printOrNot
+     * @return
+     */
 //    ======================for multi goal ==========================================
-    public static List<Path> getMultiDestPath(ArrayList<Node> targets, Node StartNode, Graph graph, List obstacles, double threshold) {
+    public static List<Path> getMultiDestPath(ArrayList<Node> targets, Node StartNode, Graph graph, List obstacles, double threshold,boolean printOrNot) {
         PriorityQueue priorityQueue;
         List<Path> IntegerPaths = new ArrayList<Path>();
         List<List<Path>> PathsCollection = new ArrayList<List<Path>>();
@@ -30,7 +39,7 @@ public  class Guider {
             NodeDis nodeDis = (NodeDis) priorityQueue.poll();
             Node D = graph.getNode(nodeDis.NodeId);
             Algorithm algorithm = new Algorithm(graph);
-            List<Path> paths = algorithm.getSingleDestPath(graph, S, D, obstacles, threshold);
+            List<Path> paths = algorithm.getSingleDestPath(graph, S, D, obstacles, threshold,printOrNot);
             S = D;
             PathsCollection.add(paths);
         }
@@ -43,11 +52,20 @@ public  class Guider {
     }
 
 
-
+    /**
+     *
+     * @param graph
+     * @param node
+     * @param node1
+     * @param ob
+     * @param v
+     * @param printOrNot
+     * @return
+     */
     //    =======================for single goal===========================================
-    public static List<Path> getSingleDestPath(Graph graph, Node node, Node node1, List ob, double v) {
+    public static List<Path> getSingleDestPath(Graph graph, Node node, Node node1, List ob, double v,boolean printOrNot) {
         Algorithm algorithm = new Algorithm(graph);
-        List<Path> paths = algorithm.getSingleDestPath(graph,node,node1,ob,v);
+        List<Path> paths = algorithm.getSingleDestPath(graph,node,node1,ob,v,printOrNot);
         return paths;
     }
 

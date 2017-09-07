@@ -150,7 +150,7 @@ public class TestPathGenerate {
 
         while (shopList.size() != 0 && shopList != null) {
             Node des = graph.getNode(pLocation.get(shopList.pop()));
-            List<Path> paths = Guider.getSingleDestPath(graph, lastNode, des, null, 0.1);
+            List<Path> paths = Guider.getSingleDestPath(graph, lastNode, des, null, 0.1,false);
             if (paths.isEmpty()) {
                 //出现了自己去自己,eg:  4->4
                 nodes.remove(graph.getNode(des.N));

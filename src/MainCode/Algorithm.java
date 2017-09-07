@@ -24,6 +24,10 @@ public class Algorithm {
     private boolean isRun;
     private double threshold = 0.2;
 
+    /**
+     *
+     * @param graph 地图传入
+     */
     //init data
     public Algorithm(Graph graph) {
         this.graph = graph;
@@ -32,7 +36,18 @@ public class Algorithm {
         allPathsInfomation = new ArrayList<>();
 
     }
-    public List<Path> getSingleDestPath(Graph graph, Node s, Node d,List obs,double threshold ) {
+
+    /**
+     *
+     * @param graph  地图
+     * @param s     起始点
+     * @param d     目标点
+     * @param obs   障碍点
+     * @param threshold 产生路径閥值
+     * @param printOrNot 打印信息
+     * @return
+     */
+    public List<Path> getSingleDestPath(Graph graph, Node s, Node d,List obs,double threshold,boolean printOrNot) {
         this.threshold = threshold;
         boolean isEdge = false;
         boolean isNode = false;
@@ -109,11 +124,17 @@ public class Algorithm {
 
             }
         }
-        ShowBestPath(bestPath);
-        ShoAllwPathInfomation(allPathsInfomation);
+        if (printOrNot) {
+            ShowBestPath(bestPath);
+            ShoAllwPathInfomation(allPathsInfomation);
+        }
         return allPathsInfomation;
     }
 
+    /**
+     * 貌似这个方法不重要，直接paths.get(0)就是最优的路径了
+     * @return 返回最优路径
+     */
     public Path ReturnBestPath() {
 
         return bestPath;
