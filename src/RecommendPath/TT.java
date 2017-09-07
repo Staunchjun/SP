@@ -120,8 +120,8 @@ public class TT {
             //计算路径聚类下的平均簇类
             double[] MeanCustomersProducts1 = getMeanCluster(testPathGenerate, clusterDistributions);
 
-            //路径簇类和路径聚类下的平均簇类差值
-            List<Double> errListWithMean = computeErrorByMean(clusterDistributions, true, MeanCustomersProducts1);
+            //路径簇类和路径聚类下的平均簇类差值，这里不需要配对，因为平均簇类是一样的
+            computeErrorByMean(clusterDistributions, true, MeanCustomersProducts1);
 
             //建立ErrorMap用于簇类配对(自身聚类后计算的概率分布和给定的用户的概率分布之差，error最小为一对)
             int errorsMapLength = clusterDistributions.size();
@@ -343,7 +343,7 @@ public class TT {
             System.out.println("配对结果(左边为路径聚合概率分布,右边为给定概率分布):");
             System.out.println(CPpair);
             System.out.println(errList);
-            System.out.println("给定概率的簇类和路径簇类的比较");
+            System.out.println("给定概率的顾客簇类和路径簇类的比较");
             double meanError = 0;
             for (Double d : errList) {
                 System.out.println(d + " ");
@@ -398,7 +398,7 @@ public class TT {
      * @param clusterDistributions
      * @return
      */
-    private static List<Double> computeErrorByMean(Map<Integer, Map<String, Map<Integer, Double>>> clusterDistributions, boolean printOrNot, double[] MeanCustomersProducts1) {
+    private static void computeErrorByMean(Map<Integer, Map<String, Map<Integer, Double>>> clusterDistributions, boolean printOrNot, double[] MeanCustomersProducts1) {
         List<Double> errListWithMean = new ArrayList<>();
         for (int i = 0; i < 7; i++) {
             int productNum = MeanCustomersProducts1.length;
@@ -428,7 +428,6 @@ public class TT {
             }
             System.out.println("平均误差：" + meanError2 + " ");
         }
-        return errListWithMean;
     }
 
     /**
