@@ -28,7 +28,7 @@ public class TestGuider {
         List<Edge> ob = new ArrayList<Edge>();
         ob.add(graph.getNode(4).getAdjEdge().get(8));
 //       单目标
-        List<Path> paths = Guider.getSingleDestPath(graph,graph.getNode(0),graph.getNode(12),ob,0.1);
+        List<Path> paths = Guider.getSingleDestPath(graph,graph.getNode(0),graph.getNode(12),ob,0.1,true);
         Path bestPath = paths.get(0);
         System.out.println("========SingleGoal path======");
         for (Node node:bestPath.getNodes())
@@ -39,7 +39,7 @@ public class TestGuider {
         System.out.println();
         System.out.println("=================================");
  //       多目标
-        List<Path> multiGoalPath = Guider.getMultiDestPath(nodes,graph.getNode(1),graph,ob,0.1);
+        List<Path> multiGoalPath = Guider.getMultiDestPath(nodes,graph.getNode(1),graph,ob,0.1,true);
         System.out.println("========MultiGoal path======");
         for (Path path:multiGoalPath)
         {
