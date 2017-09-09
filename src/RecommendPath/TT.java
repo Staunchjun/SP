@@ -100,7 +100,7 @@ public class TT {
             ArrayList<DataPoint> dataSet = new ArrayList<DataPoint>();
             int count = 0;
             for (HashMap.Entry<String, Set<Integer>> e : history.entrySet()) {
-                if (e.getKey().length() != 0)
+                if (e.getKey().length() != 0 )
                     dataSet.add(new DataPoint(e.getKey(), "b" + count));
                 count++;
             }
@@ -165,20 +165,18 @@ public class TT {
      */
     private static double[] getMeanCluster(TestPathGenerate2 testPathGenerate, Map<Integer, Map<String, Map<Integer, Double>>> clusterDistributions) {
         double[] MeanCustomersProducts = new double[testPathGenerate.N];
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < testPathGenerate.K; i++) {
             Map<String, Map<Integer, Double>> clusterDistributionTemp = clusterDistributions.get(i);
-            double[] distributionByPath = new double[testPathGenerate.N];
             for (Map.Entry<String, Map<Integer, Double>> e : clusterDistributionTemp.entrySet()) {
                 Map<Integer, Double> ee = e.getValue();//e.getKey()拿到的是cluster的名字
                 for (int j = 0; j < ee.size(); j++) {
                     MeanCustomersProducts[j] += ee.get(j);
-
                 }
             }
-            for (int j = 0; j < testPathGenerate.K; j++) {
-                MeanCustomersProducts[j] = MeanCustomersProducts[j] / testPathGenerate.K;
-            }
 
+        }
+        for (int j = 0; j < testPathGenerate.N; j++) {
+            MeanCustomersProducts[j] = MeanCustomersProducts[j] / testPathGenerate.K;
         }
         return MeanCustomersProducts;
     }
@@ -284,7 +282,7 @@ public class TT {
      */
     private static void errorMeancustomerAndCustomer(TestPathGenerate2 testPathGenerate, boolean printOrNot, double[] MeanCustomersProducts1) {
         List<Double> errListWithMean = new ArrayList<>();
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < testPathGenerate.K; i++) {
             int productNum = MeanCustomersProducts1.length;
             Map<Integer, double[]> CustomersProducts = testPathGenerate.CustomersProducts;
             double[] pros = CustomersProducts.get(i);
@@ -368,7 +366,6 @@ public class TT {
             for (int j = 0; j < errorsMapLength; j++) {
                 double[] distributionByCustomer = testPathGenerate.CustomersProducts.get(j);
                 int productNum = distributionByCustomer.length;
-
                 Map<String, Map<Integer, Double>> clusterDistributionTemp = clusterDistributions.get(i);
                 double[] distributionByPath = new double[productNum];
                 for (Map.Entry<String, Map<Integer, Double>> e : clusterDistributionTemp.entrySet()) {
@@ -400,7 +397,7 @@ public class TT {
      */
     private static void computeErrorByMean(Map<Integer, Map<String, Map<Integer, Double>>> clusterDistributions, boolean printOrNot, double[] MeanCustomersProducts1) {
         List<Double> errListWithMean = new ArrayList<>();
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < TestPathGenerate2.K; i++) {
             int productNum = MeanCustomersProducts1.length;
             Map<String, Map<Integer, Double>> clusterDistributionTemp = clusterDistributions.get(i);
             double[] distributionByPath = new double[productNum];

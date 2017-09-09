@@ -1,5 +1,5 @@
 package RecommendPath;
-
+ 
 import DataStructure.Graph;
 import DataStructure.Node;
 import DataStructure.Path;
@@ -18,9 +18,9 @@ public class TestPathGenerate2 {
     //购买的 最大上限
     public static final int Npi = N / 4;
     //K types of customer eg:C1,C2,C3...Cn;表明有多少类型的顾客
-    final static int K = 7;
+    final static int K = 2;
     //M paths 表示要运行多少次，产生多少路径
-    final static int M = 100;
+    final static int M = 1000;
     //每个点有多少种类的商品。
     final static int NN = 10;
     //给定一个概率分布，这里的概率意思是每顾客对每一种商品的喜好程度，概率和为1。
@@ -31,7 +31,6 @@ public class TestPathGenerate2 {
     final int T = 10;
     //所有的购物列表集合
     public ArrayList<ArrayList<Integer>> shopLists;
-
     public ArrayList<ArrayList<Integer>> getShopLists() {
         return shopLists;
     }
@@ -72,7 +71,7 @@ public class TestPathGenerate2 {
                 double meanPro = 1.0 / N;
                 //if productProbability higher than meanPro(1+0.8),i can consider the customer will bought it
                 int productId = random.nextInt(N);
-                while (meanPro * (1+0.8) > productProbability[productId]) {
+                while (meanPro *(1+0.7) > productProbability[productId]) {
                     productId = random.nextInt(N);
                 }
                 shopList.add(productId);
@@ -253,6 +252,8 @@ public class TestPathGenerate2 {
             stringBuffer.append(node.N);
             stringBuffer.append(",");
         }
+        // 这里添加判断，过短的路径要剔除
+        if (stringBuffer.toString().length() >  20)
         history.put(stringBuffer.toString(), shopListSet);
     }
 
