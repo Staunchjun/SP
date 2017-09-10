@@ -1,5 +1,5 @@
 package RecommendPath;
- 
+
 import DataStructure.Graph;
 import DataStructure.Node;
 import DataStructure.Path;
@@ -26,7 +26,7 @@ public class TestPathGenerate2 {
     //给定一个概率分布，这里的概率意思是每顾客对每一种商品的喜好程度，概率和为1。
     public static Map<Integer, double[]> CustomersProducts;
     //所有用户簇类平均的一个概率。
-//    public static double[] MeanCustomersProducts = new double[N];
+// public static double[] MeanCustomersProducts = new double[N];
     //T个新的顾客，只知道他们将要购物的清单列表
     final int T = 10;
     //所有的购物列表集合
@@ -64,15 +64,34 @@ public class TestPathGenerate2 {
             int i = random.nextInt(K);
             //choose nb of products that Ci will buy;
             int nb = random.nextInt(Npi);
-            //choose which products are bought;
+//            choose which products are bought;
             ArrayList<Integer> shopList = new ArrayList<>();
+            //轮盘选取 product 下面选取商品的方法导致概率低的商品永远不会被购买
+            double meanPro = 1.0 / N;
             for (int k = 0; k < nb; k++) {
                 double[] productProbability = CustomersProducts.get(i);
-                double meanPro = 1.0 / N;
-                //if productProbability higher than meanPro(1+0.8),i can consider the customer will bought it
-                int productId = random.nextInt(N);
-                while (meanPro *(1+0.7) > productProbability[productId]) {
-                    productId = random.nextInt(N);
+//                //if productProbability higher than meanPro(1+0.8),i can consider the customer will bought it
+//                int productId = random.nextInt(N);
+//                while (meanPro *(1+0.7) > productProbability[productId]) {
+//                    productId = random.nextInt(N);
+//                }
+                //大转盘 概率q q在哪个区间选取哪个商品
+                double q = Math.random();
+                //创建转盘
+                double[] wheel = new double[N];
+                wheel[0] = productProbability[0];
+                for (int j = 1; j < N; j++) {
+                    wheel[j] = productProbability[j] +wheel[j-1];
+                }
+                int productId = 0;
+                //
+                for (int j = N-1; j >= 1 ; j--) {
+
+                    if (wheel[j] > q && wheel[j-1]>0)
+                    {
+                         productId = j;
+                    }
+
                 }
                 shopList.add(productId);
             }
