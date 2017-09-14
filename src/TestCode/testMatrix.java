@@ -11,7 +11,17 @@ import java.util.TreeMap;
 public class testMatrix {
     public static void main(String[] args)
     {
-        double[][] array = {{1.,2.,3},{4.,5.,6.},{7.,8.,10.}};
+        double[][] array = {{1.,2.,3,1,1.,2.,3,1,8},
+                            {4.,5.,6.,1,1.,2.,3,1,8},
+                            {7.,8.,10.,1,1.,2.,3,1,8},
+                            {11,12,13,1,1.,2.,3,1,8},
+                            {11,12,13,1,7.,8.,10.,1,4},
+                            {11,12,13,1,7.,8.,10.,1,5},
+                            {11,12,13,1,7.,8.,10.,1,7},
+                            {11,12,13,1,7.,8.,10.,1,9},
+                            {11,12,13,1,11,12,13,1,8}
+
+    };
         Matrix A = new Matrix(array);
         EigenvalueDecomposition eig= A.eig();
         double[] eigs = eig.getRealEigenvalues();
