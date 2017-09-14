@@ -2,7 +2,9 @@ package TestCode;
 
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
+import RecommendPath.K_means;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -19,5 +21,23 @@ public class testMatrix {
         for (int i = 0; i < eigs.length; i++) {
             treeMap.put(eigs[i],eig_vecs[i]);
         }
+        ArrayList<double[]> dataSet = new ArrayList<>();
+        for (Map.Entry<Double, double[]> entry:treeMap.entrySet()) {
+            dataSet.add(entry.getValue());
+        }
+        K_means k_means = new K_means(3);
+        //设置原始数据集
+        k_means.setDataSet(dataSet);
+        //执行算法
+        k_means.execute();
+        //得到聚类结果
+        ArrayList<ArrayList<double[]>> cluster=k_means.getCluster();
+        //查看结果
+        for(int i=0;i<cluster.size();i++)
+        {
+            k_means.printDataArray(cluster.get(i), "cluster["+i+"]");
+        }
+
     }
+
 }
