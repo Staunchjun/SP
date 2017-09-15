@@ -27,13 +27,13 @@ public class GenData {
         Customer customer = new Customer();
         Map<String, List<Product>> history = new HashMap<>();
 
-        DataPoint b = new DataPoint("9,10,11,12,8,4,", "b");
-        DataPoint b1 = new DataPoint("9,10,11,7,8,4,", "b1");
-        DataPoint b2 = new DataPoint("9,10,11,12,8,,7,3,4,", "b2");
-        DataPoint c = new DataPoint("9,5,1,2,3,4,", "c");
-        DataPoint c1 = new DataPoint("9,5,6,2,3,4,", "c1");
-        DataPoint c2 = new DataPoint("9,5,1,2,6,7,3,4,", "c2");
-        DataPoint c3 = new DataPoint("9,5,6,7,3,4,", "c3");
+        HcDataPoint b = new HcDataPoint("9,10,11,12,8,4,", "b");
+        HcDataPoint b1 = new HcDataPoint("9,10,11,7,8,4,", "b1");
+        HcDataPoint b2 = new HcDataPoint("9,10,11,12,8,,7,3,4,", "b2");
+        HcDataPoint c = new HcDataPoint("9,5,1,2,3,4,", "c");
+        HcDataPoint c1 = new HcDataPoint("9,5,6,2,3,4,", "c1");
+        HcDataPoint c2 = new HcDataPoint("9,5,1,2,6,7,3,4,", "c2");
+        HcDataPoint c3 = new HcDataPoint("9,5,6,7,3,4,", "c3");
 
         history.put(b.getData(), GenerateFakeProduct(b.getData()));
         history.put(b1.getData(), GenerateFakeProduct(b1.getData()));

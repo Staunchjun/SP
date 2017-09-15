@@ -11,129 +11,26 @@ import java.util.*;
 /**
  * Created by Administrator on 2017/7/7 0007.
  */
-public class TT {
+public class TT2 {
     public static void main(String[] args) {
         TestPathGenerate testPathGenerate = new TestPathGenerate(false);
 
         Map<String, Set<Integer>> history = testPathGenerate.history;
-//        Map<Integer, Set<Integer>> TNewCustomer = testPathGenerate.TNewCustomer;
-//
-//        List<Double> errors = new ArrayList<Double>();
-//        for (Map.Entry<Integer, Set<Integer>> newCustomer : TNewCustomer.entrySet()) {
-//            // 初始化graph
-//            //Generating paths;
-//            Graph graph = InitMap.returnGraph();
-//            Set<Node> nodes = new HashSet<Node>();
-//
-//            //Generating restBuy
-//            Node Jnode = null;
-//            int alyeadyBuy = 0;
-//            List<Integer> restBuy = new ArrayList<Integer>();
-//            int J = (int) (newCustomer.getValue().size() - newCustomer.getValue().size() * 0.5);
-//            for (int i : newCustomer.getValue()) {
-//                if (alyeadyBuy <= J) {
-//                    if (alyeadyBuy == J - 1) {
-//                        Jnode = graph.getNode(testPathGenerate.pLocation.get(i));
-//                    }
-//                    nodes.add(graph.getNode(testPathGenerate.pLocation.get(i)));
-//                    alyeadyBuy++;
-//                } else {
-//                    restBuy.add(i);
-//                }
-//            }
-////            System.out.println();
-////            System.out.println("已经路过的点:");
-////            for (Node node : nodes) {
-////                System.out.print(node.N + "  ");
-////            }
-//
-//
-//            //Generating path datapoint
-//            Stack<Node> finalPath = new Stack<Node>();
-//            Node lastNode = graph.getNode(0);
-//            while (nodes.size() != 0 && nodes != null) {
-//                Node des = graph.getNode(nodes.iterator().next().N);
-//                List<Path> paths = Guider.getSingleDestPath(graph, lastNode, des, null, 0.1, false);
-//                if (paths.isEmpty()) {
-//                    //出现了自己去自己,eg:  4->4
-//                    nodes.remove(graph.getNode(des.N));
-//                    continue;
-//                }
-//                Path bestPath = paths.get(0);
-//                Stack<Node> tempPath = new Stack<Node>();
-//                for (Node node : bestPath.getNodes()) {
-//                    tempPath.push(node);
-//                    if (nodes.contains(graph.getNode(node.N))) {
-//                        nodes.remove(graph.getNode(node.N));
-//                    }
-//                }
-////                if (nodes.isEmpty()) {
-////                    System.out.println("nodes 清空");
-////                }
-//                System.out.println();
-//                while (!tempPath.isEmpty()) {
-//                    if (!finalPath.isEmpty()) {
-//                        Node topNode = finalPath.peek();
-//                        if (topNode == tempPath.peek()) {
-//                            finalPath.pop();
-//                        }
-//                    }
-//                    finalPath.push(tempPath.pop());
-//                }
-//                if (nodes.isEmpty()) {
-//                    break;
-//                }
-//                lastNode = graph.getNode(finalPath.peek().N);
-//            }
-//            StringBuffer stringBuffer = new StringBuffer();
-//            Node node_j_1 = null;
-//            for (Node node : finalPath) {
-////                System.out.print(node.N + "->");
-//                stringBuffer.append(node.N);
-//                stringBuffer.append(",");
-//                node_j_1 = node;
-//            }
 
-        //add datapoint
-//            HcDataPoint t = new HcDataPoint(stringBuffer.toString(), "t11");
         //加载历史数据，并且添加要搜寻的数据
-        ArrayList<HcDataPoint> dataSet = new ArrayList<HcDataPoint>();
+        ArrayList<ScDataPoint> dataSet = new ArrayList<ScDataPoint>();
         int count = 0;
         for (HashMap.Entry<String, Set<Integer>> e : history.entrySet()) {
             if (e.getKey().length() != 0)
-                dataSet.add(new HcDataPoint(e.getKey(), "b" + count));
+                dataSet.add(new ScDataPoint(e.getKey(), "b" + count));
             count++;
         }
-        //添加顾客J之前的路径;
-//            dataSet.add(t);
-        //设置原始数据集,不开始聚类,直接对历史做平均。
-
         //设置原始数据集,并开始聚类
-        List<HcCluster> finalHcClusters = HCluster.startCluster(dataSet, testPathGenerate.K, 0.5);
-
-        //看聚类结果
-        chekCluster(finalHcClusters);
-
+        SCluster sCluster = new SCluster(dataSet,testPathGenerate.K);
+        //得到所有聚类结果
+        ArrayList<ScCluster> clusters = sCluster.getCluster();
         //计算所有簇类的概率分布
-        Map<Integer, Map<String, Map<Integer, Double>>> clusterDistributions = getClusterDistributions(testPathGenerate, history, finalHcClusters, false);
-
-        //检查clusterDistribnutions  中的概率和是否为1
-//        for (Map.Entry<Integer, Map<String, Map<Integer, Double>>> e : clusterDistributions.entrySet()
-//                ) {
-//            Map<String, Map<Integer, Double>> m = e.getValue();
-//            for (Map.Entry<String, Map<Integer, Double>> e1 : m.entrySet()) {
-//                Map<Integer, Double> eee =
-//                        e1.getValue();
-//                double sum = 0;
-//                for (Map.Entry<Integer, Double> eeeee : eee.entrySet()) {
-//                   sum += eeeee.getValue();
-//
-//                }
-//                 System.out.println("簇类"+e1.getKey( )+"的和：");
-//                 System.out.println(sum);
-//            }
-//
-//        }
+        Map<Integer, Map<String, Map<Integer, Double>>> clusterDistributions = getClusterDistributions(testPathGenerate, history, clusters, false);
 
         //计算路径聚类下的平均簇类
         double[] MeanCustomersProducts1 = getMeanCluster(testPathGenerate, clusterDistributions);
@@ -150,29 +47,9 @@ public class TT {
         //路径聚类下的平均簇类和给定顾客簇类的差值
         errorMeancustomerAndCustomer(testPathGenerate, true, MeanCustomersProducts1);
 
-        //计算targer t 所在簇类的概率分布
-        //System.out.println("target list node:" + t.getDataPointName() + " cluster:" + t.getHcCluster().getClusterName());
-//            HcCluster cluster = t.getHcCluster();
-//            //每一个簇类的概率,商品不存在的补0
-//            Map<Integer, Double> ProductProbability = getClusterDistribution(history, t, cluster, false);
-//            for (int i = 0; i < testPathGenerate.N; i++) {
-//                if (!ProductProbability.containsKey(i)) {
-//                    ProductProbability.put(i, 0.0);
-//                }
-//            }
-//            if (ProductProbability == null) break;
-
-        // 带有的总概率算预测接下来的路径推荐，
-        // 看回最初的路径推荐算法
-//            if (RecommendPath(testPathGenerate, Jnode, restBuy, node_j_1, ProductProbability,true)) continue;
-
-        //下面做一個對比 ，已經知道了這個用戶是哪一類的顧客，拿到那一類顧客對所有商品的概率
-//            Compare(testPathGenerate, errors, newCustomer, ProductProbability, MeanCustomersProducts1);
-
-
-        // break;
-        //}
     }
+
+
 
     /**
      * 根据聚类出来的结果，计算平均cluster
@@ -468,7 +345,7 @@ public class TT {
      * @param finalHcClusters
      * @return
      */
-    private static Map<Integer, Map<String, Map<Integer, Double>>> getClusterDistributions(TestPathGenerate testPathGenerate, Map<String, Set<Integer>> history, List<HcCluster> finalHcClusters, Boolean printOrNot) {
+    private static Map<Integer, Map<String, Map<Integer, Double>>> getClusterDistributions(TestPathGenerate testPathGenerate, Map<String, Set<Integer>> history, List<ScCluster> finalHcClusters, Boolean printOrNot) {
         Map<Integer, Map<String, Map<Integer, Double>>> clusterDistributions = new HashMap<Integer, Map<String, Map<Integer, Double>>>();
         int countCluster = 0;
         for (int m = 0; m < finalHcClusters.size(); m++) {
@@ -503,16 +380,16 @@ public class TT {
      * @return
      */
 
-    private static Map<Integer, Double> getClusterDistribution(Map<String, Set<Integer>> history, HcCluster hcCluster, boolean printOrNot) {
-        List<HcDataPoint> dps = hcCluster.getHcDataPoints();
+    private static Map<Integer, Double> getClusterDistribution(Map<String, Set<Integer>> history, ScCluster hcCluster, boolean printOrNot) {
+        List<ScDataPoint> dps = hcCluster.getScDataPoints();
         //统计每一条路径中所有已购买商品总数
         Map<Integer, Double> productNum = new HashMap();
         int sum = 0;
-        for (HcDataPoint hcDataPoint : dps) {
+        for (ScDataPoint scDataPoint : dps) {
 //            if (t.getData().equals(hcDataPoint.getData())) {
 //                continue;
 //            }
-            Set<Integer> products = history.get(hcDataPoint.getData());
+            Set<Integer> products = history.get(scDataPoint.getData());
             for (int product : products) {
                 if (!productNum.containsKey(product)) {
                     productNum.put(product, 1.0);

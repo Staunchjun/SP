@@ -2,52 +2,34 @@ package TestCode;
 
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
-import RecommendPath.K_means;
+import RecommendPath.*;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class testMatrix {
     public static void main(String[] args)
     {
-        double[][] array = {{1.,2.,3,1,1.,2.,3,1,8},
-                            {4.,5.,6.,1,1.,2.,3,1,8},
-                            {7.,8.,10.,1,1.,2.,3,1,8},
-                            {11,12,13,1,1.,2.,3,1,8},
-                            {11,12,13,1,7.,8.,10.,1,4},
-                            {11,12,13,1,7.,8.,10.,1,5},
-                            {11,12,13,1,7.,8.,10.,1,7},
-                            {11,12,13,1,7.,8.,10.,1,9},
-                            {11,12,13,1,11,12,13,1,8}
-
-    };
-        Matrix A = new Matrix(array);
-        EigenvalueDecomposition eig= A.eig();
-        double[] eigs = eig.getRealEigenvalues();
-        double[][] eig_vecs = eig.getV().transpose().getArray();
-        //取前K大，使用TreeMap，按照key排序，从小到大取K个出来
-        TreeMap<Double, double[]> treeMap = new TreeMap<>();
-        for (int i = 0; i < eigs.length; i++) {
-            treeMap.put(eigs[i],eig_vecs[i]);
-        }
-        ArrayList<double[]> dataSet = new ArrayList<>();
-        for (Map.Entry<Double, double[]> entry:treeMap.entrySet()) {
-            dataSet.add(entry.getValue());
-        }
-        K_means k_means = new K_means(3);
-        //设置原始数据集
-        k_means.setDataSet(dataSet);
-        //执行算法
-        k_means.execute();
-        //得到聚类结果
-        ArrayList<ArrayList<double[]>> cluster=k_means.getCluster();
-        //查看结果
-        for(int i=0;i<cluster.size();i++)
-        {
-            k_means.printDataArray(cluster.get(i), "cluster["+i+"]");
-        }
-
+       SCluster sCluster = new SCluster(HistoryData(),2);
     }
+        //加载历史数据，并且添加要搜寻的数据
+    public static ArrayList<ScDataPoint> HistoryData() {
+        ArrayList<ScDataPoint> dataSet = new ArrayList<ScDataPoint>();
+        ScDataPoint b = new ScDataPoint("9,10,11,12,8,4,","b");
+        ScDataPoint b1 = new ScDataPoint("9,10,11,7,8,4,","b1");
+        ScDataPoint b2 = new ScDataPoint("9,10,11,12,8,,7,3,4,","b2");
+        ScDataPoint c = new ScDataPoint("9,5,1,2,3,4,","c");
+        ScDataPoint c1 = new ScDataPoint("9,5,6,2,3,4,","c1");
+        ScDataPoint c2 = new ScDataPoint("9,5,1,2,6,7,3,4,","c2");
+        ScDataPoint c3 = new ScDataPoint("9,5,6,7,3,4,","c3");
+        dataSet.add(b);
+        dataSet.add(b1);
+        dataSet.add(b2);
+        dataSet.add(c);
+        dataSet.add(c1);
+        dataSet.add(c2);
+        dataSet.add(c3);
+        return dataSet;
+    }
+
 
 }
