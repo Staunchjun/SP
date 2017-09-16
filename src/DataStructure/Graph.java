@@ -1,11 +1,8 @@
 package DataStructure;
 
-import Bean.EdgeQgisSql;
 import Bean.EdgeSql;
-import Bean.NodeQgisSql;
 import Bean.NodeSql;
 import RecommendPath.TestPathGenerate;
-import RecommendPath.TestPathGenerate2;
 
 import java.util.*;
 
@@ -111,7 +108,7 @@ public class Graph {
         }
     }
 
-    public Graph(List<EdgeSql> EdgeQgisSql, List<NodeSql> NodesBean, Map<Integer, Double> list, TestPathGenerate2 testPathGenerate) {
+    public Graph(List<EdgeSql> EdgeQgisSql, List<NodeSql> NodesBean, Map<Integer, Double> list, TestPathGenerate testPathGenerate) {
         V = NodesBean.size();// add node 0
         E = EdgeQgisSql.size();
 
