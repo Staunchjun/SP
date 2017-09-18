@@ -65,7 +65,10 @@ public class SCluster {
         //求出 L 的前 k 个特征值（在本文中，除非特殊说明，否则“前 k 个”指按照特征值的大小从小到大的顺序）
         // \{\lambda\}_{i=1}^k 以及对应的特征向量 \{\mathbf{v}\}_{i=1}^k 。引用jama包
         Matrix L_matrix = new Matrix(L);
+        //这里求特征值可以通过幂迭代的方法求特征值，借此提升计算速度
         EigenvalueDecomposition eig = L_matrix.eig();
+
+
         double[] eigs = eig.getRealEigenvalues();
         double[][] eig_vecs = eig.getV().transpose().getArray();
         //取前K大，使用TreeMap，按照key排序，从小到大取K个出来
