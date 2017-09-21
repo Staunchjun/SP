@@ -15,14 +15,14 @@
 4)把这k个特征（列）向量排列在一起组成一个N*k的矩阵，将其中每一行看作k维空间中的一个向量，并使用 K-means 算法进行聚类。聚类的结果中每一行所属的类别就是原来 Graph 中的节点亦即最初的N个数据点分别所属的类别。
 
 ## 简单的 Matlab 实现：
-`function idx = spectral_clustering(W, k)
-    D = diag(sum(W));
-    L = D-W;
-    opt = struct('issym', true, 'isreal', true);
-    [V dummy] = eigs(L, D, k, 'SM', opt);
-    idx = kmeans(V, k);
-end
-`
+    function idx = spectral_clustering(W, k)
+        D = diag(sum(W));
+        L = D-W;
+        opt = struct('issym', true, 'isreal', true);
+        [V dummy] = eigs(L, D, k, 'SM', opt);
+        idx = kmeans(V, k);
+    end
+
 
 
 
@@ -37,13 +37,33 @@ end
 
 
 ## 改进
-两个提升速度的地方
-1. 求特征值是最耗时。可以选择高效的幂迭代法，或者雅可比法来提高求特征值的速度。可以明显改善求解速度。
+ 两个提升速度的地方
+1.求特征值是最耗时。可以选择高效的幂迭代法，或者雅可比法来提高求特征值的速度。可以明显改善求解速度。
+
+    def power_iteration(A):
+        # Ideally choose a random vector
+        # To decrease the chance that our vector
+        # Is orthogonal to the eigenvector
+        b_k = np.random.rand(A.shape[0])
+
+    for _ in range(num_simulations):
+        # calculate the matrix-by-vector product Ab
+        b_k1 = np.dot(A, b_k)
+
+        # calculate the norm
+        b_k1_norm = np.linalg.norm(b_k1)
+
+        # re normalize the vector
+        b_k = b_k1 / b_k1_norm
+
+    return b_k
+
 参考：<http://blog.csdn.net/luckisok/article/details/1602266>
-2. 最后还是要通过K-means来求解聚类，通过改进K-means算法提高聚类速度。
+    <https://en.wikipedia.org/wiki/Power_iteration>
+    
+2.最后还是要通过K-means来求解聚类，通过改进K-means算法提高聚类速度。
 参考：Geodesic K-means Clustering
-
-
+    
 ##参考
 1. Fast Approximate Spectral Clustering
 2. A Tutorial on Spectral Clustering

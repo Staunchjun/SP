@@ -31,5 +31,65 @@ public class testMatrix {
         return dataSet;
     }
 
+    /**
+     * 幂迭代求特征值
+     *
+     * @param A
+     * @return
+     */
+    private void PowerIteration(double[][] A) {
+        int N = A.length;
+        //先任取一个初始向量X
+        double[] x = new double[N];
+        for (int i = 0; i < N; i++) {
+            x[i] = Math.random();
+        }
+        //初始化特征向量v ，u，p,e,delta
+        double[] v = new double[N];
+        double[] u = new double[N];
+        double[] p = new double[N];
+        for (int i = 0; i < N; i++) {
+            v[i] = 0;
+            u[i] = 0;
+            p[i] = 0;
+        }
+        double e = 1e-10, delta = 1;
+        int k = 0;
+        while (delta >= e) {
+            for (int q = 0; q < N; q++) p[q] = v[q];
+            for (int i = 0; i < N; i++) {
+                v[i] = 0;
+                for (int j = 0; j < N; j++)
+                    v[i] += A[i][j] * x[j];
+            }
+            for (int i = 0; i < N; i++) u[i] = v[i] / (slove(v));
+            delta = Math.abs(slove(v) - slove(p));
+            k++;
+            for (int l = 0; l < N; l++) x[l] = u[l];
+        }
+        System.out.println("迭代次数：" + k);
+        System.out.println("矩阵的特征值：");
+        for (int i = 0; i < N; i++) {
+            System.out.println("（" + u[i] + "）");
+        }
+
+    }
+
+    /**
+     *
+     * @param v
+     * @return
+     */
+    public double slove(double[] v)
+    {
+        //slove v[N]
+        int N = v.length;
+        double max = 0;
+        for(int i=0;i<N-1;i++)
+        {max=v[i]>v[i+1]?v[i]:v[i+1];}
+        return max;
+    }
+
+
 
 }
