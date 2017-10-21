@@ -18,7 +18,7 @@ public class TestPathGenerate {
     //购买的 最大上限
     public static final int Npi = N / 4;
     //K types of customer eg:C1,C2,C3...Cn;表明有多少类型的顾客
-    final static int K = 2;
+    final static int K = 3;
     //M paths 表示要运行多少次，产生多少路径
     final static int M = 1000;
     //每个点有多少种类的商品。
