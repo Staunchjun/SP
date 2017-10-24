@@ -239,6 +239,7 @@ public class K_means {
             }
             setNewCenter();
             m++;
+            System.out.println("第"+m+"次迭代");
             clusters.clear();
             clusters = initCluster();
         }

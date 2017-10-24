@@ -71,27 +71,49 @@ public class SCluster {
         //这里求特征值可以通过幂迭代的方法求特征值，借此提升计算速度，采用幂迭代的扩展直接求出K个最小的特征值，减少计算量
         //inverse iteration 就是 对A矩阵求逆，然后跑power iteration 代码即可得到最小的特征值
         //这里求逆矩阵的方法可以自己写而不用导包
+//        Matrix L_matrix = new Matrix(L);
+//        Matrix Inverse_L_matrix =  L_matrix.inverse();
+//        double[][] Inverse_L = Inverse_L_matrix.getArray();
+//
+//        ArrayList<double[]> ys = new ArrayList();
+//        ArrayList<Double> lamdbas = new ArrayList();
+//
+//        for (int i = 0; i < K; i++) {
+//            cal(Inverse_L,i,ys,lamdbas);
+//        }
+//        double[][] NK = new double[len][K];
+//        //产生N*K的矩阵
+//        int count = 0;
+//        for (;count< ys.size();count++) {
+//            for (int i = 0; i < len; i++) {
+//                NK[i][count] = ys.get(count)[i];
+//            }
+//        }
+
         Matrix L_matrix = new Matrix(L);
-        Matrix Inverse_L_matrix =  L_matrix.inverse();
-        double[][] Inverse_L = Inverse_L_matrix.getArray();
-
-        ArrayList<double[]> ys = new ArrayList();
-        ArrayList<Double> lamdbas = new ArrayList();
-
-        for (int i = 0; i < K; i++) {
-            cal(Inverse_L,i,ys,lamdbas);
+        EigenvalueDecomposition eig = L_matrix.eig();
+        double[] eigs = eig.getRealEigenvalues();
+        double[][] eig_vecs = eig.getV().transpose().getArray();
+        //取前K大，使用TreeMap，按照key排序，从小到大取K个出来
+        TreeMap<Double, double[]> treeMap = new TreeMap<>();
+        for (int i = 0; i < eigs.length; i++) {
+            treeMap.put(eigs[i], eig_vecs[i]);
         }
-
-
-
         double[][] NK = new double[len][K];
         //产生N*K的矩阵
         int count = 0;
-        for (;count< ys.size();count++) {
-            for (int i = 0; i < len; i++) {
-                NK[i][count] = ys.get(count)[i];
+        for (Map.Entry<Double, double[]> entry:treeMap.entrySet()) {
+            if (count >= K)
+            {
+                break;
             }
+            for (int i = 0; i < len; i++) {
+                NK[i][count] = entry.getValue()[i];
+            }
+
+            count++;
         }
+
         for (int i = 0; i < len; i++) {
             data.get(i).setTempData(NK[i]);
         }
