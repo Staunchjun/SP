@@ -3,13 +3,32 @@ package TestCode;
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 import RecommendPath.*;
+import weka.clusterers.SpectralClusterer;
+import weka.core.*;
+import weka.core.converters.ConverterUtils;
+import weka.core.neighboursearch.PerformanceStats;
+import weka.gui.beans.DataSource;
 
 import java.util.*;
 
 public class testMatrix {
-    public static void main(String[] args)
-    {
-       SCluster sCluster = new SCluster(HistoryData(),2);
+    public static void main(String[] args) throws Exception {
+//        SCluster sCluster = new SCluster(HistoryData(), 2);
+       MySpectrak mySpectrak = new MySpectrak();
+        ArrayList<ScDataPoint> points = HistoryData();
+       mySpectrak.buildClusterer(points);
+       System.out.println("簇类数目 "+mySpectrak.numberOfClusters());
+       System.out.println("聚类信息 "+mySpectrak.globalInfo());
+       System.out.println("聚类信息如下");
+        for (String s:mySpectrak.getOptions()) {
+            System.out.println(s);
+        }
+        for (int i = 0; i < points.size(); i++) {
+            System.out.println(points.get(i).getDataPointName()+" "+mySpectrak.cluster[i]);
+        }
+
+
+
     }
         //加载历史数据，并且添加要搜寻的数据
     public static ArrayList<ScDataPoint> HistoryData() {
@@ -17,17 +36,35 @@ public class testMatrix {
         ScDataPoint b = new ScDataPoint("9,10,11,12,8,4,","b");
         ScDataPoint b1 = new ScDataPoint("9,10,11,7,8,4,","b1");
         ScDataPoint b2 = new ScDataPoint("9,10,11,12,8,,7,3,4,","b2");
+        ScDataPoint b3 = new ScDataPoint("9,10,11,12,8,,7,3,1,","b3");
+        ScDataPoint b4 = new ScDataPoint("9,10,11,12,8,,7,3,2,","b4");
+        ScDataPoint b5 = new ScDataPoint("9,10,11,12,8,,7,3,3,","b5");
+        ScDataPoint b6 = new ScDataPoint("9,10,11,12,8,,7,3,7,","b6");
         ScDataPoint c = new ScDataPoint("9,5,1,2,3,4,","c");
         ScDataPoint c1 = new ScDataPoint("9,5,6,2,3,4,","c1");
         ScDataPoint c2 = new ScDataPoint("9,5,1,2,6,7,3,4,","c2");
         ScDataPoint c3 = new ScDataPoint("9,5,6,7,3,4,","c3");
+        ScDataPoint D3 = new ScDataPoint("9,1,2,88,3,466,","d3");
+        ScDataPoint D2 = new ScDataPoint("9,1,2,7,3,45,","d2");
+        ScDataPoint D4 = new ScDataPoint("9,1,2,7,3,4,","d4");
+        ScDataPoint D5 = new ScDataPoint("9,1,2,7,3,4,","d5");
+        ScDataPoint D6 = new ScDataPoint("9,1,2,7,34,4,","d6");
         dataSet.add(b);
         dataSet.add(b1);
         dataSet.add(b2);
+        dataSet.add(b3);
+        dataSet.add(b4);
+        dataSet.add(b5);
+        dataSet.add(b6);
         dataSet.add(c);
         dataSet.add(c1);
         dataSet.add(c2);
         dataSet.add(c3);
+        dataSet.add(D3);
+        dataSet.add(D2);
+        dataSet.add(D4);
+        dataSet.add(D5);
+        dataSet.add(D6);
         return dataSet;
     }
 

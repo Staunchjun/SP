@@ -39,7 +39,8 @@ public class EditDistance {
             }
         }
         int dis =  distance[word1.length][word2.length];
-        return  1-(dis*1.0/Math.max(word1.length,word2.length));
+//        return  1-(dis*1.0/Math.max(word1.length,word2.length));
+        return  dis;
     }
 
     public static int min(int a, int b, int c) {
