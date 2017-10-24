@@ -13,6 +13,10 @@ import java.util.*;
  */
 public class TT2 {
     public static void main(String[] args) {
+        Map<Double,Double> map = new HashMap<>();
+        for (int i = 0; i < 100; i++) {
+
+
         TestPathGenerate testPathGenerate = new TestPathGenerate(false);
 
         Map<String, Set<Integer>> history = testPathGenerate.history;
@@ -36,7 +40,7 @@ public class TT2 {
         double[] MeanCustomersProducts1 = getMeanCluster(testPathGenerate, clusterDistributions);
 
         //路径簇类和路径聚类下的平均簇类差值，这里不需要配对，因为平均簇类是一样的
-        computeErrorByMean(clusterDistributions, true, MeanCustomersProducts1);
+        computeErrorByMean(clusterDistributions, false, MeanCustomersProducts1);
 
         //建立ErrorMap用于簇类配对(自身聚类后计算的概率分布和给定的用户的概率分布之差，error最小为一对)
         int errorsMapLength = clusterDistributions.size();
@@ -47,6 +51,7 @@ public class TT2 {
         //路径聚类下的平均簇类和给定顾客簇类的差值
         errorMeancustomerAndCustomer(testPathGenerate, true, MeanCustomersProducts1);
 
+        }
     }
 
 
