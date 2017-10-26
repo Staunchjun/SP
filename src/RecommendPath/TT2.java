@@ -27,8 +27,32 @@ public class TT2 {
         }
         //设置原始数据集,并开始聚类
         SCluster sCluster = new SCluster(dataSet,testPathGenerate.K);
+
+//        MySpectrak mySpectrak = new MySpectrak();
+//        mySpectrak.buildClusterer(dataSet);
         //得到所有聚类结果
         ArrayList<ScCluster> clusters = sCluster.getCluster();
+
+//        ArrayList<ScCluster> clusters = new ArrayList<>();
+//        int clusterNum = mySpectrak.numOfClusters;
+//        for (int i = 0; i < clusterNum; i++) {
+//            ScCluster scCluster = new ScCluster();
+//            scCluster.setClusterName(String.valueOf(i));
+//            scCluster.setScDataPoints(new ArrayList<ScDataPoint>());
+//            clusters.add(scCluster);
+//        }
+//        int[] res = mySpectrak.cluster;
+//
+//        for (int i = 0; i < res.length; i++) {
+//            ScCluster scCluster = clusters.get(res[i]);
+//            List<ScDataPoint> points = scCluster.getScDataPoints();
+//            points.add(dataSet.get(i));
+//            scCluster.setScDataPoints(points);
+//        }
+//        for (ScCluster scCluster:clusters
+//             ) {
+//            System.out.println(scCluster.getClusterName()+"---"+scCluster.getScDataPoints().size());
+//        }
         //计算所有簇类的概率分布
         Map<Integer, Map<String, Map<Integer, Double>>> clusterDistributions = getClusterDistributions(testPathGenerate, history, clusters, false);
 

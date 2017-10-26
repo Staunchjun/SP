@@ -26,8 +26,11 @@ public class testMatrix {
         for (int i = 0; i < points.size(); i++) {
             System.out.println(points.get(i).getDataPointName()+" "+mySpectrak.cluster[i]);
         }
+        String a = "9,10,11,12,8,4,";
+        String b = "9,10,11,12,8,4,";
+        System.out.println(EditDistance.similarity(a,b));
 
-
+    System.out.println(1.0/56);
 
     }
         //加载历史数据，并且添加要搜寻的数据
@@ -35,11 +38,11 @@ public class testMatrix {
         ArrayList<ScDataPoint> dataSet = new ArrayList<ScDataPoint>();
         ScDataPoint b = new ScDataPoint("9,10,11,12,8,4,","b");
         ScDataPoint b1 = new ScDataPoint("9,10,11,7,8,4,","b1");
-        ScDataPoint b2 = new ScDataPoint("9,10,11,12,8,,7,3,4,","b2");
-        ScDataPoint b3 = new ScDataPoint("9,10,11,12,8,,7,3,1,","b3");
-        ScDataPoint b4 = new ScDataPoint("9,10,11,12,8,,7,3,2,","b4");
-        ScDataPoint b5 = new ScDataPoint("9,10,11,12,8,,7,3,3,","b5");
-        ScDataPoint b6 = new ScDataPoint("9,10,11,12,8,,7,3,7,","b6");
+        ScDataPoint b2 = new ScDataPoint("9,10,11,12,8,7,3,4,","b2");
+        ScDataPoint b3 = new ScDataPoint("9,10,11,12,8,7,3,1,","b3");
+        ScDataPoint b4 = new ScDataPoint("9,10,11,12,8,7,3,2,","b4");
+        ScDataPoint b5 = new ScDataPoint("9,10,11,12,8,7,3,3,","b5");
+        ScDataPoint b6 = new ScDataPoint("9,10,11,12,8,7,3,7,","b6");
         ScDataPoint c = new ScDataPoint("9,5,1,2,3,4,","c");
         ScDataPoint c1 = new ScDataPoint("9,5,6,2,3,4,","c1");
         ScDataPoint c2 = new ScDataPoint("9,5,1,2,6,7,3,4,","c2");

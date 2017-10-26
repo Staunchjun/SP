@@ -1,9 +1,14 @@
 package RecommendPath;
 
-import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
+import cern.colt.matrix.DoubleMatrix2D;
+import cern.colt.matrix.doublealgo.Transform;
+import cern.colt.matrix.impl.DenseDoubleMatrix2D;
+import cern.colt.matrix.linalg.Algebra;
+import cern.colt.matrix.linalg.EigenvalueDecomposition;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -16,15 +21,20 @@ public class SCluster {
      */
     private ArrayList<ScCluster> clusters;
     public SCluster(ArrayList<ScDataPoint> data, int K) {
+        double hyperparameter = 1;
         //把这个 Graph 用邻接矩阵的形式表示出来，记为 W
         int len = data.size();
         double[][] W = new double[len][len];
         for (int i = 0; i < len; i++) {
             for (int j = 0; j < len; j++) {
-                W[i][j] = EditDistance.similarity(data.get(i).getData(), data.get(j).getData());
+
+                double dis = EditDistance.similarity(data.get(i).getData(), data.get(j).getData());
+                W[i][j] = dis;
+//                W[i][j] = Math.exp((0-dis*dis)/(2*hyperparameter*hyperparameter));
             }
         }
-//        //输出相似矩阵W
+
+        //输出相似矩阵W
 //        System.out.println("输出W矩阵");
 //        for (int i = 0; i < len; i++) {
 //            for (int j = 0; j < len; j++) {
@@ -33,27 +43,33 @@ public class SCluster {
 //            System.out.println();
 //        }
         //把 W 的每一列元素加起来得到 N 个数，把它们放在对角线上（其他地方都是零），组成一个 N*N的矩阵，记为 D 。
-        double[] D = new double[W.length];
+        double[][] D = new double[W.length][W.length];
         for (int i = 0; i < W.length; i++) {
             double sum = 0;
             for (int j = 0; j < W.length; j++) {
-                sum += W[j][i];
+                sum += W[i][j];
+                D[i][j] = 0;
             }
-            D[i] = sum;
+            D[i][i] = sum;
         }
-        // L = D-W
-        double[][] L = W.clone();
-        for (int i = 0; i < W.length; i++) {
-            for (int j = 0; j < W.length; j++) {
-                if (i == j)
-                {
-                    L[i][j] = D[i] - L[i][j];
-                }
-                else {
-                    L[i][j] = -L[i][j];
-                }
-            }
-        }
+
+        DoubleMatrix2D W_matrix = new DenseDoubleMatrix2D(W.length,W.length);
+        DoubleMatrix2D D_matrix = new DenseDoubleMatrix2D(W.length,W.length);
+        W_matrix.assign(W);
+        D_matrix.assign(W);
+
+        DoubleMatrix2D D_matrix_1div2 = Transform.pow(D_matrix,0.5);
+        DoubleMatrix2D TempMatrix = Transform.mult(D_matrix_1div2,W_matrix);
+        DoubleMatrix2D L_matrix = Transform.mult(TempMatrix,D_matrix_1div2);
+
+//        // L = D-W
+//        double[][] L = W.clone();
+//        for (int i = 0; i < W.length; i++) {
+//            for (int j = 0; j < W.length; j++) {
+//
+//                L[i][j] = D[i][j] - L[i][j];
+//            }
+//        }
         //输出L矩阵
 //        System.out.println("输出L矩阵");
 //        for (int i = 0; i < len; i++) {
@@ -62,12 +78,8 @@ public class SCluster {
 //            }
 //            System.out.println();
 //        }
-
-
         //求出 L 的前 k 个特征值（在本文中，除非特殊说明，否则“前 k 个”指按照特征值的大小从小到大的顺序）
         // \{\lambda\}_{i=1}^k 以及对应的特征向量 \{\mathbf{v}\}_{i=1}^k 。引用jama包
-
-
         //这里求特征值可以通过幂迭代的方法求特征值，借此提升计算速度，采用幂迭代的扩展直接求出K个最小的特征值，减少计算量
         //inverse iteration 就是 对A矩阵求逆，然后跑power iteration 代码即可得到最小的特征值
         //这里求逆矩阵的方法可以自己写而不用导包
@@ -77,9 +89,16 @@ public class SCluster {
 //
 //        ArrayList<double[]> ys = new ArrayList();
 //        ArrayList<Double> lamdbas = new ArrayList();
-//
-//        for (int i = 0; i < K; i++) {
-//            cal(Inverse_L,i,ys,lamdbas);
+//        ArrayList<double[][]> sub_matrix = new ArrayList();
+//        ArrayList<double[]> eigRec = PowerIteration(inverse_l);
+//        double eig = slove(eigRec.get(0));
+//        double[] eig_vec = eigRec.get(1);
+//        ys.add(eig_vec);
+//        lamdbas.add(eig);
+//        sub_matrix.add(Inverse_L);
+
+//        for (int i = 1; i < K; i++) {
+//            cal(i,ys,lamdbas,sub_matrix);
 //        }
 //        double[][] NK = new double[len][K];
 //        //产生N*K的矩阵
@@ -90,12 +109,27 @@ public class SCluster {
 //            }
 //        }
 
-        Matrix L_matrix = new Matrix(L);
-        EigenvalueDecomposition eig = L_matrix.eig();
-        double[] eigs = eig.getRealEigenvalues();
-        double[][] eig_vecs = eig.getV().transpose().getArray();
+
+//        Matrix L_matrix = new Matrix(L);
+//        EigenvalueDecomposition eig = L_matrix.eig();
+//        double[] eigs = eig.getRealEigenvalues();
+//        double[][] eig_vecs = eig.getV().transpose().getArray();
+
+        EigenvalueDecomposition L_matrix_ed = new EigenvalueDecomposition(L_matrix);
+        double[] eigs = L_matrix_ed.getRealEigenvalues().toArray();
+        Algebra  alg = new Algebra();
+        double[][] eig_vecs = alg.transpose(L_matrix_ed.getV()).toArray();
+
         //取前K大，使用TreeMap，按照key排序，从小到大取K个出来
-        TreeMap<Double, double[]> treeMap = new TreeMap<>();
+        TreeMap<Double, double[]> treeMap = new TreeMap<>(new Comparator<Double>() {
+            @Override
+            public int compare(Double o1, Double o2) {
+                int i = -1;
+                if (o1 < o2)
+                    i = 1;
+                return i;
+            }
+        });
         for (int i = 0; i < eigs.length; i++) {
             treeMap.put(eigs[i], eig_vecs[i]);
         }
@@ -199,27 +233,11 @@ public class SCluster {
         return max;
     }
 
-    private void cal(double[][] inverse_l, int i, ArrayList<double[]> ys,ArrayList<Double> lamdbas) {
-      /* k_matrix = m(matrix, k)
-        cur_lambda, res = cal_lambda(k_matrix)
-        lambda_[k] = cur_lambda
-         #    res = f(k_matrix)
-        for i in range(0, n-k):
-        last_lambda = lambda_[n-i]
-        res = g(res, last_lambda)
-        y[k] = res
-      */
-        ArrayList<double[]> eigRec = PowerIteration(inverse_l);
-        double eig = slove(eigRec.get(0));
-        double[] eig_vec = eigRec.get(1);
-        ys.add(eig_vec);
-        lamdbas.add(eig);
-
-        double[] res = eig_vec;
-        for (int j = 0; j < inverse_l.length - i; j++) {
-            double last_lambda = lamdbas.get(inverse_l.length-j);
-            res = Deflation(inverse_l,last_lambda);
-        }
+    private void cal(int i, ArrayList<double[]> ys,ArrayList<Double> lamdbas,ArrayList<double[][]> sub_matrix) {
+        i = i-1;
+        double[][] inverse_l = sub_matrix.get(i);
+        double last_lambda = lamdbas.get(i);
+        double[] res = Deflation(inverse_l,last_lambda,lamdbas,sub_matrix);
         ys.add(res);
     }
     public double[][] A2A_2(double[][] A)
@@ -256,31 +274,34 @@ public class SCluster {
 
 
     // Find deflation matrix
-     public  double[] Deflation(double[][] A,double eig)
+     public  double[] Deflation(double[][] A,double eig,ArrayList<Double> lamdbas,ArrayList<double[][]> sub_matrix)
     {
-            double[][] A_2 = A2A_2(A);
-            int len_b = A_2.length - 1;
-            double[][] B_2 = new double[len_b][len_b];
-            for (int i = 0; i < len_b; i++) {
+        double[][] A_2 = A2A_2(A);
+        sub_matrix.add(A_2);
+        int len_b = A_2.length - 1;
+        double[][] B_2 = new double[len_b][len_b];
+        for (int i = 0; i < len_b; i++) {
                 for (int j = 0; j < len_b; j++) {
                     B_2[i][j] = A_2[i + 1][j + 1];
                 }
             }
-            double[] b_1 = new double[len_b];
-            for (int i = 0; i < len_b; i++) {
+        double[] b_1 = new double[len_b];
+        for (int i = 0; i < len_b; i++) {
                 b_1[i] = A_2[0][i + 1];
             }
 
-            ArrayList<double[]> eigRec = PowerIteration(B_2);
-            double lambda_2 = slove(eigRec.get(0));
-            double[] y_2 = eigRec.get(1);
-            double up_value = 0;
-            for (int i = 0; i < b_1.length; i++) {
+        ArrayList<double[]> eigRec = PowerIteration(B_2);
+        double lambda_2 = slove(eigRec.get(0));
+        lamdbas.add(lambda_2);
+
+        double[] y_2 = eigRec.get(1);
+        double up_value = 0;
+        for (int i = 0; i < b_1.length; i++) {
                 up_value += b_1[i] * y_2[i];
             }
-            double alpha = up_value / (eig - lambda_2);
-            double[] z_2 = new double[A_2.length+1];
-            for (int i = 0; i < A_2.length+1; i++) {
+        double alpha = up_value / (eig - lambda_2);
+        double[] z_2 = new double[A_2.length+1];
+        for (int i = 0; i < A_2.length+1; i++) {
                 if (i == 0) {
                     z_2[i] = alpha;
                 } else {
@@ -295,5 +316,7 @@ public class SCluster {
         {
             return clusters;
         }
+
+
 }
 
