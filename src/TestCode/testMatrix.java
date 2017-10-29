@@ -13,32 +13,8 @@ import java.util.*;
 
 public class testMatrix {
     public static void main(String[] args) throws Exception {
-//        SCluster sCluster = new SCluster(HistoryData(), 2);
-       MySpectrak mySpectrak = new MySpectrak();
-        ArrayList<ScDataPoint> points = HistoryData();
-       mySpectrak.buildClusterer(points);
-       System.out.println("簇类数目 "+mySpectrak.numberOfClusters());
-       System.out.println("聚类信息 "+mySpectrak.globalInfo());
-       System.out.println("聚类信息如下");
-        for (String s:mySpectrak.getOptions()) {
-            System.out.println(s);
-        }
-        for (int i = 0; i < points.size(); i++) {
-            System.out.println(points.get(i).getDataPointName()+" "+mySpectrak.cluster[i]);
-        }
-        String a = "9,10,11,12,8,4,";
-        String b = "9,10,11,12,8,4,";
-        System.out.println(EditDistance.similarity(a,b));
-
-    System.out.println(1.0/56);
-    double[][] d = new double[4][4];
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < 2; j++) {
-                d[i][j] = 8;
-            }
-        }
-    Matrix matrix = new Matrix(d);
-    MainPIC(matrix,4);
+        double[][] A = {{-4*1.0,14.0,0.0},{-5.0,13.0,0.0},{-1,0.0,2.0}};
+        Matrix A_matrix = new Matrix(A);
     }
     public static  void MainPIC(Matrix A,int k)
     {
