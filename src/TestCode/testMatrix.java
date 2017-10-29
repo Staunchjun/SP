@@ -31,7 +31,66 @@ public class testMatrix {
         System.out.println(EditDistance.similarity(a,b));
 
     System.out.println(1.0/56);
+    double[][] d = new double[4][4];
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                d[i][j] = 8;
+            }
+        }
+    Matrix matrix = new Matrix(d);
+    MainPIC(matrix,4);
+    }
+    public static  void MainPIC(Matrix A,int k)
+    {
 
+        Matrix evec = Findevec(A,0.5,1e-3);
+        Matrix defmat = Deflation(A,evec,0.5,1e-3);
+        Matrix evec2  = Findevec(defmat,0.5,1e-3);
+        Matrix defmat1 = Deflation(defmat,evec,0.5,1e-3);
+        Matrix evec3  = Findevec(defmat1,0.5,1e-3);
+        System.out.println(evec);
+        System.out.println(evec2);
+        System.out.println(evec3);
+
+    }
+    private static Matrix RandVector(int columnDimension) {
+        double[][] x = new double[0][columnDimension];
+        Random random = new Random(10);
+        for (int i = 0; i < columnDimension; i++) {
+            double a = random.nextInt(20000)/10000;
+            x[0][i] = a;
+        }
+        Matrix matrix = new Matrix(x);
+        return matrix;
+    }
+    public static double eval1;
+    public static Matrix Findevec(Matrix A,double eval,double tol)
+    {
+        double lambdaOld = -1000;
+        Matrix x = RandVector(A.getRowDimension());
+        double lambda = x.norm1();;
+        Matrix xnew;
+        while (Math.abs((lambda - lambdaOld)/lambda)>tol)
+        {
+            lambdaOld = lambda;
+            xnew = A.times(x);
+            x = xnew;
+            lambda = x.norm1();
+        }
+        eval1 = lambda;
+        return x;
+    }
+
+    public static Matrix Deflation(Matrix A,Matrix X, double eval ,double tol)
+    {
+        Matrix Z = A.transpose();
+        Matrix y = Findevec(Z,eval1,tol);
+        Matrix ytrans = y.transpose();
+        Matrix norm = ytrans.times(X);
+        y = y.times(eval/norm.getArray()[0][0]);
+        Z = X.times(y.transpose());
+        A = A.minus(Z);
+        return A;
     }
         //加载历史数据，并且添加要搜寻的数据
     public static ArrayList<ScDataPoint> HistoryData() {

@@ -7,10 +7,7 @@ import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 import cern.colt.matrix.linalg.Algebra;
 import cern.colt.matrix.linalg.EigenvalueDecomposition;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class SCluster {
     /**
@@ -62,14 +59,6 @@ public class SCluster {
         DoubleMatrix2D TempMatrix = Transform.mult(D_matrix_1div2,W_matrix);
         DoubleMatrix2D L_matrix = Transform.mult(TempMatrix,D_matrix_1div2);
 
-//        // L = D-W
-//        double[][] L = W.clone();
-//        for (int i = 0; i < W.length; i++) {
-//            for (int j = 0; j < W.length; j++) {
-//
-//                L[i][j] = D[i][j] - L[i][j];
-//            }
-//        }
         //输出L矩阵
 //        System.out.println("输出L矩阵");
 //        for (int i = 0; i < len; i++) {
@@ -78,6 +67,7 @@ public class SCluster {
 //            }
 //            System.out.println();
 //        }
+
         //求出 L 的前 k 个特征值（在本文中，除非特殊说明，否则“前 k 个”指按照特征值的大小从小到大的顺序）
         // \{\lambda\}_{i=1}^k 以及对应的特征向量 \{\mathbf{v}\}_{i=1}^k 。引用jama包
         //这里求特征值可以通过幂迭代的方法求特征值，借此提升计算速度，采用幂迭代的扩展直接求出K个最小的特征值，减少计算量
@@ -109,11 +99,6 @@ public class SCluster {
 //            }
 //        }
 
-
-//        Matrix L_matrix = new Matrix(L);
-//        EigenvalueDecomposition eig = L_matrix.eig();
-//        double[] eigs = eig.getRealEigenvalues();
-//        double[][] eig_vecs = eig.getV().transpose().getArray();
 
         EigenvalueDecomposition L_matrix_ed = new EigenvalueDecomposition(L_matrix);
         double[] eigs = L_matrix_ed.getRealEigenvalues().toArray();
@@ -233,83 +218,6 @@ public class SCluster {
         return max;
     }
 
-    private void cal(int i, ArrayList<double[]> ys,ArrayList<Double> lamdbas,ArrayList<double[][]> sub_matrix) {
-        i = i-1;
-        double[][] inverse_l = sub_matrix.get(i);
-        double last_lambda = lamdbas.get(i);
-        double[] res = Deflation(inverse_l,last_lambda,lamdbas,sub_matrix);
-        ys.add(res);
-    }
-    public double[][] A2A_2(double[][] A)
-    {
-        int len = A.length;
-        Matrix A_matrix = new Matrix(A);
-        double[][] y = new double[len][len];
-        for (int i = 0; i < len; i++) {
-            for (int j = 0; j < len; j++) {
-                if (i == 0 && j == 0)
-                    y[i][j] = 1;
-                else
-                    y[i][j] = 0;
-            }
-        }
-        Matrix y_matrix = new Matrix(y);
-        double rho = A_matrix.norm2() / y_matrix.norm2();
-        y_matrix = y_matrix.times(rho);
-        Matrix v_matrix = A_matrix.minus(y_matrix).times((A_matrix.minus(y_matrix)).norm2());
-        double[][] I = new double[len][len];
-        for (int i = 0; i < len; i++) {
-            for (int j = 0; j < len; j++) {
-                if (i == j)
-                    I[i][j] = 1;
-                else
-                    I[i][j] = 0;
-            }
-        }
-        Matrix H_matrix = v_matrix.times(v_matrix.transpose()).times(2);
-        Matrix A_2_matrix = H_matrix.times(A_matrix).times(H_matrix.transpose());
-        double[][] A_2 = A_2_matrix.getArray();
-        return A_2;
-    }
-
-
-    // Find deflation matrix
-     public  double[] Deflation(double[][] A,double eig,ArrayList<Double> lamdbas,ArrayList<double[][]> sub_matrix)
-    {
-        double[][] A_2 = A2A_2(A);
-        sub_matrix.add(A_2);
-        int len_b = A_2.length - 1;
-        double[][] B_2 = new double[len_b][len_b];
-        for (int i = 0; i < len_b; i++) {
-                for (int j = 0; j < len_b; j++) {
-                    B_2[i][j] = A_2[i + 1][j + 1];
-                }
-            }
-        double[] b_1 = new double[len_b];
-        for (int i = 0; i < len_b; i++) {
-                b_1[i] = A_2[0][i + 1];
-            }
-
-        ArrayList<double[]> eigRec = PowerIteration(B_2);
-        double lambda_2 = slove(eigRec.get(0));
-        lamdbas.add(lambda_2);
-
-        double[] y_2 = eigRec.get(1);
-        double up_value = 0;
-        for (int i = 0; i < b_1.length; i++) {
-                up_value += b_1[i] * y_2[i];
-            }
-        double alpha = up_value / (eig - lambda_2);
-        double[] z_2 = new double[A_2.length+1];
-        for (int i = 0; i < A_2.length+1; i++) {
-                if (i == 0) {
-                    z_2[i] = alpha;
-                } else {
-                    z_2[i] = y_2[i - 1];
-                }
-            }
-            return z_2;
-    }
 
 
     public ArrayList<ScCluster> getCluster()
@@ -317,6 +225,54 @@ public class SCluster {
             return clusters;
         }
 
+    public static  void MainPIC(Matrix A,int k)
+    {
 
+        Matrix evec = Findevec(A,0.5,1e-3);
+        Matrix defmat = Deflation(A,evec,0.5,1e-3);
+        Matrix evec2  = Findevec(defmat,0.5,1e-3);
+        Matrix defmat1 = Deflation(defmat,evec,0.5,1e-3);
+        Matrix evec3  = Findevec(defmat1,0.5,1e-3);
+
+    }
+    private static Matrix RandVector(int columnDimension) {
+        double[][] x = new double[0][columnDimension];
+        Random random = new Random(10);
+        for (int i = 0; i < columnDimension; i++) {
+           double a = random.nextInt(20000)/10000;
+           x[0][i] = a;
+        }
+        Matrix matrix = new Matrix(x);
+        return matrix;
+    }
+    public static double eval1;
+    public static Matrix Findevec(Matrix A,double eval,double tol)
+    {
+        double lambdaOld = -1000;
+        Matrix x = RandVector(A.getColumnDimension());
+        double lambda = x.norm1();;
+        Matrix xnew;
+        while (Math.abs((lambda - lambdaOld)/lambda)>tol)
+        {
+            lambdaOld = lambda;
+            xnew = A.times(x);
+            x = xnew;
+            lambda = x.norm1();
+        }
+        eval1 = lambda;
+        return x;
+    }
+
+    public static Matrix Deflation(Matrix A,Matrix X, double eval ,double tol)
+    {
+        Matrix Z = A.transpose();
+        Matrix y = Findevec(Z,eval1,tol);
+        Matrix ytrans = y.transpose();
+        Matrix norm = ytrans.times(X);
+        y = y.times(eval/norm.getArray()[0][0]);
+        Z = X.times(y.transpose());
+        A = A.minus(Z);
+        return A;
+    }
 }
 
