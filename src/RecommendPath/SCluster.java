@@ -100,34 +100,42 @@ public class SCluster {
 //        }
 
 
-        EigenvalueDecomposition L_matrix_ed = new EigenvalueDecomposition(L_matrix);
-        double[] eigs = L_matrix_ed.getRealEigenvalues().toArray();
-        Algebra  alg = new Algebra();
-        double[][] eig_vecs = alg.transpose(L_matrix_ed.getV()).toArray();
+//        EigenvalueDecomposition L_matrix_ed = new EigenvalueDecomposition(L_matrix);
+//        double[] eigs = L_matrix_ed.getRealEigenvalues().toArray();
+//        Algebra  alg = new Algebra();
+//        double[][] eig_vecs = alg.transpose(L_matrix_ed.getV()).toArray();
+//
+//        //取前K大，使用TreeMap，按照key排序，从小到大取K个出来
+//        TreeMap<Double, double[]> treeMap = new TreeMap<>(new Comparator<Double>() {
+//            @Override
+//            public int compare(Double o1, Double o2) {
+//                int i = -1;
+//                if (o1 < o2)
+//                    i = 1;
+//                return i;
+//            }
+//        });
+         //----------------------------------------------------
+        Matrix L = new Matrix(L_matrix.toArray());
+        EigDec ed = new EigDec();
+        ArrayList<Matrix> evs = ed.Weilandt(L,K);
 
-        //取前K大，使用TreeMap，按照key排序，从小到大取K个出来
-        TreeMap<Double, double[]> treeMap = new TreeMap<>(new Comparator<Double>() {
-            @Override
-            public int compare(Double o1, Double o2) {
-                int i = -1;
-                if (o1 < o2)
-                    i = 1;
-                return i;
-            }
-        });
-        for (int i = 0; i < eigs.length; i++) {
-            treeMap.put(eigs[i], eig_vecs[i]);
-        }
+        //----------------------------------------------------
+//        for (int i = 0; i < eigs.length; i++) {
+//            treeMap.put(eigs[i], eig_vecs[i]);
+//        }
         double[][] NK = new double[len][K];
         //产生N*K的矩阵
         int count = 0;
-        for (Map.Entry<Double, double[]> entry:treeMap.entrySet()) {
+        for(Matrix entry:evs){
+//        for (Map.Entry<Double, double[]> entry:treeMap.entrySet()) {
             if (count >= K)
             {
                 break;
             }
             for (int i = 0; i < len; i++) {
-                NK[i][count] = entry.getValue()[i];
+                NK[i][count] = entry.get(i,0);
+//                NK[i][count] = entry.getValue()[i];
             }
 
             count++;
