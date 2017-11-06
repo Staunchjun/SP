@@ -64,7 +64,7 @@
 2.最后还是要通过K-means来求解聚类，通过改进K-means算法提高聚类速度。
 参考：Geodesic K-means Clustering
     
-##参考
+## 参考
 1. Fast Approximate Spectral Clustering
 2. A Tutorial on Spectral Clustering
 
