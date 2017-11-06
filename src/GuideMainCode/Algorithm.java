@@ -1,9 +1,9 @@
-package MainCode;
+package GuideMainCode;
 
-import DataStructure.Edge;
-import DataStructure.Graph;
-import DataStructure.Node;
-import DataStructure.Path;
+import GuideDataStructure.Edge;
+import GuideDataStructure.Graph;
+import GuideDataStructure.Node;
+import GuideDataStructure.Path;
 import Util.Util;
 
 import java.util.ArrayList;

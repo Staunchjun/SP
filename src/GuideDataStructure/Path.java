@@ -1,4 +1,4 @@
-package DataStructure;
+package GuideDataStructure;
 import java.util.List;
 
 /**

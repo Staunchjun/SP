@@ -3,10 +3,10 @@ package RecommendPath;
 import Cluster.HCluster;
 import Cluster.HcCluster;
 import Cluster.HcDataPoint;
-import DataStructure.Graph;
-import DataStructure.Node;
-import DataStructure.Path;
-import MainCode.Guider;
+import GuideDataStructure.Graph;
+import GuideDataStructure.Node;
+import GuideDataStructure.Path;
+import GuideMainCode.Guider;
 import TestCode.InitMap;
 
 import java.util.*;

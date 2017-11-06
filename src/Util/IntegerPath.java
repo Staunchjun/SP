@@ -1,7 +1,7 @@
 package Util;
 
-import DataStructure.Node;
-import DataStructure.Path;
+import GuideDataStructure.Node;
+import GuideDataStructure.Path;
 
 import java.util.ArrayList;
 import java.util.Collections;

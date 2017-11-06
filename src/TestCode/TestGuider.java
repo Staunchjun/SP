@@ -1,10 +1,10 @@
 package TestCode;
 
-import DataStructure.Edge;
-import DataStructure.Graph;
-import DataStructure.Node;
-import DataStructure.Path;
-import MainCode.Guider;
+import GuideDataStructure.Edge;
+import GuideDataStructure.Graph;
+import GuideDataStructure.Node;
+import GuideDataStructure.Path;
+import GuideMainCode.Guider;
 
 import java.util.ArrayList;
 import java.util.List;

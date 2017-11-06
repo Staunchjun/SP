@@ -2,7 +2,7 @@ package TestCode;
 
 import Bean.EdgeSql;
 import Bean.NodeSql;
-import DataStructure.Graph;
+import GuideDataStructure.Graph;
 import RecommendPath.TestPathGenerate;
 
 import java.util.ArrayList;

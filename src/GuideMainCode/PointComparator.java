@@ -1,6 +1,6 @@
-package MainCode;
+package GuideMainCode;
 
-import DataStructure.Node;
+import GuideDataStructure.Node;
 
 import java.util.Comparator;
 

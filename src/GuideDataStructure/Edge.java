@@ -1,6 +1,5 @@
-package DataStructure;
+package GuideDataStructure;
 
-import DataStructure.Node;
 import Util.Util;
 
 /**

@@ -1,8 +1,8 @@
 package Util;
 
-import DataStructure.Edge;
-import DataStructure.Graph;
-import DataStructure.Node;
+import GuideDataStructure.Edge;
+import GuideDataStructure.Graph;
+import GuideDataStructure.Node;
 
 import java.util.ArrayList;
 import java.util.List;
