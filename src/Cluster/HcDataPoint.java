@@ -1,6 +1,9 @@
-package RecommendPath;
+package Cluster;
 
 class HcDataPoint {
+    /**
+     * 层次聚类用到的聚类点的数据结构
+     */
     private HcCluster hcCluster;
     private String data;
     private String dataPointName;

@@ -11,5 +11,6 @@
     <orderEntry type="library" name="weka" level="project" />
     <orderEntry type="library" name="colt" level="project" />
     <orderEntry type="library" name="Jama-1.0.3" level="project" />
+    <orderEntry type="library" name="Jama-1.0.31" level="project" />
   </component>
 </module>

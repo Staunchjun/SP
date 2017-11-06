@@ -1,5 +1,8 @@
 package RecommendPath;
 
+import Cluster.HCluster;
+import Cluster.HcCluster;
+import Cluster.HcDataPoint;
 import DataStructure.Graph;
 import DataStructure.Node;
 import DataStructure.Path;

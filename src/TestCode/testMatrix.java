@@ -1,6 +1,9 @@
 package TestCode;
+import Cluster.ScDataPoint;
 import Jama.Matrix;
-import RecommendPath.*;
+import Util.EigDec;
+import Util.TwoTuple;
+
 import java.util.*;
 
 public class testMatrix {

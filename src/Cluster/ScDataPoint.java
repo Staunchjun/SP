@@ -1,5 +1,8 @@
-package RecommendPath;
+package Cluster;
 
+/**
+ * 谱聚类的数据结构
+ */
 public class ScDataPoint {
     private ScCluster ScCluster;
     private String data;

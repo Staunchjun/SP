@@ -11,6 +11,13 @@ import java.util.List;
  * Created by Administrator on 2017/3/30.
  */
 public class IntegerPath {
+    /**
+     * 整合路径
+     *
+     * @param paths 所有路径
+     * @param StartNode 开始点
+     * @return 所有路径集合
+     */
     public static List<Path> IntegerPath (List<List<Path>> paths, Node StartNode)
     {
         List<Path> multiPaths = new ArrayList<Path>();

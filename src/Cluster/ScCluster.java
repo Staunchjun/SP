@@ -1,8 +1,11 @@
-package RecommendPath;
+package Cluster;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 谱聚类的数据结构
+ */
 public class ScCluster {
     private List<ScDataPoint> ScDataPoints = new ArrayList<ScDataPoint>(); // 类簇中的样本点
     private String clusterName;

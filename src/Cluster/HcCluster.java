@@ -1,9 +1,12 @@
-package RecommendPath;
+package Cluster;
 
 import java.util.ArrayList;
 import java.util.List;
 
 class HcCluster {
+    /**
+     * 层次聚类的数据结构
+     */
     private List<HcDataPoint> hcDataPoints = new ArrayList<HcDataPoint>(); // 类簇中的样本点
     private String clusterName;
 

@@ -1,4 +1,4 @@
-package RecommendPath;
+package Cluster;
 
 import java.util.ArrayList;
 import java.util.Random;

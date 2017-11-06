@@ -1,8 +1,11 @@
-package RecommendPath;
+package Cluster;
+
+import Util.EditDistance;
 
 import java.util.*;
 
 /**
+ * 层次聚类
  * Created by Administrator on 2017/6/7.
  */
 public class HCluster {

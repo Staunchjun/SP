@@ -1,5 +1,13 @@
-package RecommendPath;
+package Util;
 
+/**
+ * 4元组
+ *
+ * @param <A>
+ * @param <B>
+ * @param <C>
+ * @param <D>
+ */
 public class FourTuple<A,B,C,D> {
     public final A first;
     public final B second;

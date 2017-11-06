@@ -1,5 +1,10 @@
-package RecommendPath;
+package Util;
 
+/**
+ * 2元组
+ * @param <A>
+ * @param <B>
+ */
 public class TwoTuple<A, B> {
 
         public final A first;

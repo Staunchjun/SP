@@ -1,5 +1,7 @@
 package RecommendPath;
 
+import Cluster.HcDataPoint;
+
 import java.util.*;
 
 /**
