@@ -31,8 +31,8 @@ public class SCluster {
             for (int j = 0; j < len; j++) {
 
                 double dis = EditDistance.similarity(data.get(i).getData(), data.get(j).getData());
-                W[i][j] = dis;
-//                W[i][j] = Math.exp((0-dis*dis)/(2*hyperparameter*hyperparameter));
+//                W[i][j] = dis;
+                W[i][j] = Math.exp((0-dis*dis)/(2*hyperparameter*hyperparameter));
             }
         }
 
@@ -121,7 +121,9 @@ public class SCluster {
 //            }
 //        });
         //----------------------------------------------------
-        Matrix L = new Matrix(L_matrix.toArray());
+        Matrix Inverse_L_matrix = new Matrix(L_matrix.toArray());
+       double[][] Inverse_L = Inverse_L_matrix.getArray();
+        Matrix L = new Matrix(Inverse_L);
         EigDec ed = new EigDec();
         ArrayList<Matrix> evs = ed.Weilandt(L, K);
 

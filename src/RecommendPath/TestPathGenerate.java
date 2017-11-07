@@ -19,7 +19,7 @@ public class TestPathGenerate {
     //K types of customer eg:C1,C2,C3...Cn;表明有多少类型的顾客
     final static int K = 10;
     //M paths 表示要运行多少次，产生多少路径
-    final static int M = 6000;
+    final static int M = 8000;
     //每个点有多少种类的商品。
     final static int NN = 10;
     //给定一个概率分布，这里的概率意思是每顾客对每一种商品的喜好程度，概率和为1。

@@ -1,6 +1,6 @@
 package Cluster;
 
-class HcDataPoint {
+public class HcDataPoint {
     /**
      * 层次聚类用到的聚类点的数据结构
      */

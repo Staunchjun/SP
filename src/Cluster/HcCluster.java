@@ -3,7 +3,7 @@ package Cluster;
 import java.util.ArrayList;
 import java.util.List;
 
-class HcCluster {
+public class HcCluster {
     /**
      * 层次聚类的数据结构
      */
