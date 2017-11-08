@@ -19,7 +19,7 @@ public class EigDec {
         Matrix x_matrix = new Matrix(x);
         EigDec ed = new EigDec();
         Matrix B1 = A;
-        FourTuple<Matrix, ArrayList<Double>, Integer, Integer> result11 = ed.PowerMethod2(B1, x_matrix, 0.000001, 1000);
+        FourTuple<Matrix, ArrayList<Double>, Integer, Integer> result11 = ed.PowerMethod2(B1, x_matrix, 0.0001, 2000);
         double r1 = result11.second.get(result11.fourth);
         System.out.println(r1);
         Matrix u1 = result11.first;
@@ -29,7 +29,7 @@ public class EigDec {
         for (int i = 1; i < k; i++) {
 
             Matrix B2 = B1.minus(u1.times(r1).times(x1.transpose()));
-            FourTuple<Matrix, ArrayList<Double>, Integer, Integer> result22 = ed.PowerMethod2(B2, x_matrix, 0.000001, 1000);
+            FourTuple<Matrix, ArrayList<Double>, Integer, Integer> result22 = ed.PowerMethod2(B2, x_matrix, 0.0001, 2000);
             double r2 = result22.second.get(result22.fourth);
             System.out.println(r2);
             Matrix u2 = result22.first;
@@ -418,5 +418,6 @@ public class EigDec {
         {max=v[i]>v[i+1]?v[i]:v[i+1];}
         return max;
     }
+
 }
 

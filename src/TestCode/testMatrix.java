@@ -3,45 +3,62 @@ import Cluster.ScDataPoint;
 import Jama.Matrix;
 import Util.EigDec;
 import Util.TwoTuple;
+import com.csvreader.CsvReader;
+import com.csvreader.CsvWriter;
+import org.python.util.PythonInterpreter;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.*;
 
 public class testMatrix {
     public static void main(String[] args) throws Exception {
-        double[][] A = {{ -4.0, 14.0, 0.0}, {-5.0, 13.0, 0.0}, {-1.0, 0.0, 2.0}};
-        double[][] x = {{1.0}, {1.0}, {1.0}};
+
+        write();
+        Process proc = Runtime.getRuntime().exec("python  sa.py");
+        proc.waitFor();
+        read();
+    }
+
+    private static void testExtensionPowerMethod() {
+        double[][] A = {{ 1, 2, 0.0, 1}, {2, 1, 0.0, 0.0}, {0, 0.0, 1.0, 0.0},{1, 0, 0,1}};
+        double[][] x = {{1.0}, {1.0}, {1.0}, {1.0}};
         //Weilandt Deflation Method
         Matrix B1 = new Matrix(A);
         Matrix x_matrix = new Matrix(x);
         EigDec ed = new EigDec();
-        TwoTuple<Double, Matrix> result = ed.PowerMethod(B1, x_matrix, 0.0000000001, 100);
+        ed.Weilandt(B1,4);
+        TwoTuple<Double, Matrix> result = ed.PowerMethod(B1, x_matrix, 0.00001, 2000);
         double r1 = result.first;
         System.out.println(r1);
         Matrix u1 = result.second;
         Matrix x1 = u1.times(1 / Math.pow(u1.norm2(), 2));
         x1.print(1, 1);
         Matrix B2 = B1.minus(u1.times(r1).times(x1.transpose()));
-        TwoTuple<Double, Matrix> result2 = ed.PowerMethod(B2, x_matrix, 0.0000000001, 100);
+        TwoTuple<Double, Matrix> result2 = ed.PowerMethod(B2, x_matrix, 0.00001, 2000);
         double r2 = result2.first;
         System.out.println(r2);
         Matrix u2 = result2.second;
         Matrix x2 = u2.times(1 / Math.pow(u2.norm2(), 2));
         x2.print(1, 1);
         Matrix B3 = B2.minus(u2.times(r2).times(x2.transpose()));
-        TwoTuple<Double, Matrix> result3 = ed.PowerMethod(B3, x_matrix, 0.0000000001, 100);
+        TwoTuple<Double, Matrix> result3 = ed.PowerMethod(B3, x_matrix, 0.00001, 2000);
         double r3 = result3.first;
         System.out.println(r3);
         Matrix u3 = result3.second;
         Matrix x3 = u3.times(1 / Math.pow(u3.norm2(), 2));
         x3.print(1, 1);
 
-       
+
         System.out.println("---------------------------------------------");
         ArrayList<Matrix> evs = ed.Weilandt(B1,3);
         for (Matrix a :
              evs) {
             a.print(5,5);
-            
+
         }
         //Weilandt Deflation Method
 //        FourTuple<Matrix, ArrayList<Double>, Integer, Integer> result11 = ed.PowerMethod2(B1, x_matrix, 0.0000000001, 100);
@@ -227,5 +244,69 @@ public class testMatrix {
         return max;
     }
 
+    public static void read(){
+
+        String filePath = "Lmatrix.csv";
+
+        try {
+            // 创建CSV读对象
+            CsvReader csvReader = new CsvReader(filePath);
+
+            // 读表头
+            csvReader.readHeaders();
+            while (csvReader.readRecord()){
+                // 读一整行
+                System.out.println(csvReader.getRawRecord());
+                // 读这行的某一列
+                System.out.println(csvReader.get("Link"));
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public static void write(){
+
+        String filePath = "Lmatrix.csv";
+        createFile(filePath);
+        try {
+            // 创建CSV写对象
+            CsvWriter csvWriter = new CsvWriter(filePath,',', Charset.forName("GBK"));
+            //CsvWriter csvWriter = new CsvWriter(filePath);
+
+            // 写表头{2, 1, 0.0, 0.0}, {0, 0.0, 1.0, 0.0},{1, 0, 0,1}
+            String[] headers = {"1","2","0","1"};
+            String[] header1s = {"2","1", "0.0", "0.0"};
+            String[] header2s = {"0", "0.0", "1.0", "0.0"};
+            String[] header3s = {"1", "0", "0","1"};
+//            String[] content = {"12365","张山","34"};
+            csvWriter.writeRecord(headers);
+            csvWriter.writeRecord(header1s);
+            csvWriter.writeRecord(header2s);
+            csvWriter.writeRecord(header3s);
+            csvWriter.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public static boolean createFile(String destFileName) {
+        Boolean bool = false;
+        String filenameTemp = destFileName;//
+        File file = new File(filenameTemp);
+        try {
+            if (!file.exists())
+            {
+                file.createNewFile();
+                bool = true;
+                System.out.println("成功创建文件");
+            }
+
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return bool;
+    }
 
 }

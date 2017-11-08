@@ -3,11 +3,13 @@ package Cluster;
 import Jama.Matrix;
 import Util.EditDistance;
 import Util.EigDec;
+import Util.Util;
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.doublealgo.Transform;
 import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -121,11 +123,27 @@ public class SCluster {
 //            }
 //        });
         //----------------------------------------------------
-        Matrix Inverse_L_matrix = new Matrix(L_matrix.toArray());
-       double[][] Inverse_L = Inverse_L_matrix.getArray();
-        Matrix L = new Matrix(Inverse_L);
-        EigDec ed = new EigDec();
-        ArrayList<Matrix> evs = ed.Weilandt(L, K);
+        // 这里使用的是自己编写的幂迭代
+        //----------------------------------------------------
+//        Matrix Inverse_L_matrix = new Matrix(L_matrix.toArray());
+//       double[][] Inverse_L = Inverse_L_matrix.getArray();
+//        Matrix L = new Matrix(Inverse_L);
+//        EigDec ed = new EigDec();
+//        ArrayList<Matrix> evs = ed.Weilandt(L, K);
+
+        //----------------------------------------------------
+        // 这里使用python的脚本代码计算k个最小的特征值
+        //----------------------------------------------------
+        Util.write(L_matrix.toArray());
+        Process proc = null;
+        try {
+            proc = Runtime.getRuntime().exec("python  sa.py");
+            proc.waitFor();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("python脚本运行出错");
+        }
+        ArrayList<double[]> evs_a = Util.read();
 
         //----------------------------------------------------
 //        for (int i = 0; i < eigs.length; i++) {
@@ -134,13 +152,13 @@ public class SCluster {
         double[][] NK = new double[len][K];
         //产生N*K的矩阵
         int count = 0;
-        for (Matrix entry : evs) {
+        for (double[] entry : evs_a) {
 //        for (Map.Entry<Double, double[]> entry:treeMap.entrySet()) {
             if (count >= K) {
                 break;
             }
             for (int i = 0; i < len; i++) {
-                NK[i][count] = entry.get(i, 0);
+                NK[i][count] = entry[i];
 //                NK[i][count] = entry.getValue()[i];
             }
 
