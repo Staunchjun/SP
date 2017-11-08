@@ -246,7 +246,7 @@ public class testMatrix {
 
     public static void read(){
 
-        String filePath = "Lmatrix.csv";
+        String filePath = "vec_matrix.csv";
 
         try {
             // 创建CSV读对象

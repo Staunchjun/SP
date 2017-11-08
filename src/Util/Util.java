@@ -78,8 +78,8 @@ public class Util {
     }
 
     public static ArrayList<double[]> read() {
-
-        String filePath = "Lmatrix.csv";
+        System.out.println("正在读取vec_matrix.csv");
+        String filePath = "vec_matrix.csv";
         ArrayList<double[]> evs = new ArrayList<>();
         try {
             // 创建CSV读对象
@@ -96,10 +96,10 @@ public class Util {
                 }
 
                 // 读这行的某一列
-                System.out.println(csvReader.get("Link"));
+//                System.out.println(csvReader.get("Link"));
                 evs.add(doubles);
             }
-            System.out.println(csvReader.get("读取完毕"));
+//            System.out.println(csvReader.get("读取完毕"));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -108,7 +108,7 @@ public class Util {
     }
 
     public static void write(double[][] L_arr){
-
+        System.out.println("正在写Lmatrix.csv");
         String filePath = "Lmatrix.csv";
         createFile(filePath);
         try {
@@ -123,7 +123,9 @@ public class Util {
                     headers[j] = String.valueOf(L_arr[i][j]);
                 }
                 csvWriter.writeRecord(headers);
+                csvWriter.flush();
             }
+            csvWriter.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

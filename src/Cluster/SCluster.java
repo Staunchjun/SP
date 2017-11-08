@@ -1,15 +1,10 @@
 package Cluster;
 
-import Jama.Matrix;
 import Util.EditDistance;
-import Util.EigDec;
 import Util.Util;
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.doublealgo.Transform;
 import cern.colt.matrix.impl.DenseDoubleMatrix2D;
-
-
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -24,7 +19,7 @@ public class SCluster {
      */
     private ArrayList<ScCluster> clusters;
 
-    public SCluster(ArrayList<ScDataPoint> data, int K) {
+    public SCluster(ArrayList<ScDataPoint> data, int K,double threshold) {
         double hyperparameter = 1;
         //把这个 Graph 用邻接矩阵的形式表示出来，记为 W
         int len = data.size();
@@ -33,8 +28,11 @@ public class SCluster {
             for (int j = 0; j < len; j++) {
 
                 double dis = EditDistance.similarity(data.get(i).getData(), data.get(j).getData());
-//                W[i][j] = dis;
-                W[i][j] = Math.exp((0-dis*dis)/(2*hyperparameter*hyperparameter));
+                if (dis< threshold)
+                    dis = 0;
+                W[i][j] = dis;
+
+//                W[i][j] = Math.exp((0-dis*dis)/(2*hyperparameter*hyperparameter));
             }
         }
 
@@ -61,6 +59,7 @@ public class SCluster {
         DoubleMatrix2D D_matrix = new DenseDoubleMatrix2D(W.length, W.length);
         W_matrix.assign(W);
         D_matrix.assign(W);
+
 
         DoubleMatrix2D D_matrix_1div2 = Transform.pow(D_matrix, 0.5);
         DoubleMatrix2D TempMatrix = Transform.mult(D_matrix_1div2, W_matrix);
@@ -135,10 +134,12 @@ public class SCluster {
         // 这里使用python的脚本代码计算k个最小的特征值
         //----------------------------------------------------
         Util.write(L_matrix.toArray());
-        Process proc = null;
         try {
-            proc = Runtime.getRuntime().exec("python  sa.py");
+            String[] args = new String[] { "python", "sa.py", String.valueOf(K)};
+//            Process proc = Runtime.getRuntime().exec("python  sa.py"+" "+K);
+            Process proc = Runtime.getRuntime().exec(args);
             proc.waitFor();
+            System.out.println("python脚本正在运行");
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("python脚本运行出错");

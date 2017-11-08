@@ -14,6 +14,13 @@ import java.util.*;
  */
 public class TT2 {
     public static void main(String[] args) {
+        ArrayList<Double> difs = new ArrayList<Double>();
+        for (int i = 0; i < 30; i++) {
+            double det = 0.5/30;
+            double threshold = 0;
+            threshold += det;
+
+            double dif = 0;
         TestPathGenerate testPathGenerate = new TestPathGenerate(false);
 
         Map<String, Set<Integer>> history = testPathGenerate.history;
@@ -26,8 +33,9 @@ public class TT2 {
                 dataSet.add(new ScDataPoint(e.getKey(), "b" + count));
             count++;
         }
+//        double threshold = 0.2;
         //设置原始数据集,并开始聚类
-        SCluster sCluster = new SCluster(dataSet,testPathGenerate.K);
+        SCluster sCluster = new SCluster(dataSet,testPathGenerate.K,threshold);
 
 //        MySpectrak mySpectrak = new MySpectrak();
 //        mySpectrak.buildClusterer(dataSet);
@@ -67,15 +75,23 @@ public class TT2 {
         int errorsMapLength = clusterDistributions.size();
         double[][] errorsMap = createErrorMap(testPathGenerate, clusterDistributions, errorsMapLength);
         //根据ErrorMap进行一一配对，打印路径簇类和给定概率簇类的比较
-        pairClusterByErrormap(errorsMapLength, errorsMap, true);
+        double clustered = pairClusterByErrormap(errorsMapLength, errorsMap, true);
 
         //路径聚类下的平均簇类和给定顾客簇类的差值
-        errorMeancustomerAndCustomer(testPathGenerate, true, MeanCustomersProducts1);
+       double mean = errorMeancustomerAndCustomer(testPathGenerate, true, MeanCustomersProducts1);
+
+        dif = mean - clustered;
+        difs.add(dif);
+    }
+        double threshold = 0;
+        for (int i = 0; i < 30; i++) {
+            double det = 0.5/30;
+            threshold += det;
+            System.out.println(threshold +"  " + difs.get(i));
+        }
+
 
     }
-
-
-
     /**
      * 根据聚类出来的结果，计算平均cluster
      *
@@ -200,7 +216,7 @@ public class TT2 {
      * @param testPathGenerate
      * @param printOrNot
      */
-    private static void errorMeancustomerAndCustomer(TestPathGenerate testPathGenerate, boolean printOrNot, double[] MeanCustomersProducts1) {
+    private static double errorMeancustomerAndCustomer(TestPathGenerate testPathGenerate, boolean printOrNot, double[] MeanCustomersProducts1) {
         List<Double> errListWithMean = new ArrayList<>();
         for (int i = 0; i < testPathGenerate.K; i++) {
             int productNum = MeanCustomersProducts1.length;
@@ -214,15 +230,16 @@ public class TT2 {
             }
             errListWithMean.add(error / productNum);
         }
+        double meanError2 = 0;
         if (printOrNot) {
             System.out.println("给定概率的顾客簇类和路径聚类下的平均簇类的比较:");
-            double meanError2 = 0;
             for (Double d : errListWithMean) {
                 System.out.println(d + " ");
                 meanError2 += d;
             }
             System.out.println("平均误差：" + meanError2 + " ");
         }
+        return meanError2;
     }
 
     /**
@@ -231,7 +248,7 @@ public class TT2 {
      * @param errorsMapLength
      * @param errorsMap
      */
-    private static void pairClusterByErrormap(int errorsMapLength, double[][] errorsMap, boolean printOrNot) {
+    private static double pairClusterByErrormap(int errorsMapLength, double[][] errorsMap, boolean printOrNot) {
         Map<Integer, Integer> CPpair = new HashMap<Integer, Integer>();
         List<Double> errList = new ArrayList<>();
         List<Integer> PathVisited = new ArrayList<Integer>();
@@ -257,18 +274,20 @@ public class TT2 {
             CustomerVisited.add(CustomerClusterIndex);
             errList.add(min);
         }
+        double meanError = 0;
         if (printOrNot) {
             System.out.println("配对结果(左边为路径聚合概率分布,右边为给定概率分布):");
             System.out.println(CPpair);
             System.out.println(errList);
             System.out.println("给定概率的顾客簇类和路径簇类的比较");
-            double meanError = 0;
+//            double meanError = 0;
             for (Double d : errList) {
                 System.out.println(d + " ");
                 meanError += d;
             }
             System.out.println("平均误差：" + meanError + " ");
         }
+        return meanError;
     }
 
     /**
@@ -315,7 +334,7 @@ public class TT2 {
      * @param clusterDistributions
      * @return
      */
-    private static void computeErrorByMean(Map<Integer, Map<String, Map<Integer, Double>>> clusterDistributions, boolean printOrNot, double[] MeanCustomersProducts1) {
+    private static double computeErrorByMean(Map<Integer, Map<String, Map<Integer, Double>>> clusterDistributions, boolean printOrNot, double[] MeanCustomersProducts1) {
         List<Double> errListWithMean = new ArrayList<>();
         for (int i = 0; i < TestPathGenerate.K; i++) {
             int productNum = MeanCustomersProducts1.length;
@@ -336,15 +355,17 @@ public class TT2 {
             }
             errListWithMean.add(error / productNum);
         }
+        double meanError2 = 0;
         if (printOrNot) {
             System.out.println("路径簇类和路径聚类下的平均簇类比较:");
-            double meanError2 = 0;
+            meanError2 = 0;
             for (Double d : errListWithMean) {
                 System.out.println(d + " ");
                 meanError2 += d;
             }
             System.out.println("平均误差：" + meanError2 + " ");
         }
+        return meanError2;
     }
 
     /**
