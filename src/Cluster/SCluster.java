@@ -1,5 +1,6 @@
 package Cluster;
 
+import Jama.Matrix;
 import Util.EditDistance;
 import Util.Util;
 import cern.colt.matrix.DoubleMatrix2D;
@@ -18,23 +19,27 @@ public class SCluster {
      * @param K    K个类别
      */
     private ArrayList<ScCluster> clusters;
-
+    public double sparRatio;
     public SCluster(ArrayList<ScDataPoint> data, int K,double threshold) {
         double hyperparameter = 1;
         //把这个 Graph 用邻接矩阵的形式表示出来，记为 W
         int len = data.size();
         double[][] W = new double[len][len];
+        int spar = 0;
         for (int i = 0; i < len; i++) {
             for (int j = 0; j < len; j++) {
 
                 double dis = EditDistance.similarity(data.get(i).getData(), data.get(j).getData());
-                if (dis< threshold)
+                if (dis< threshold) {
                     dis = 0;
+                    spar++;
+                }
                 W[i][j] = dis;
 
 //                W[i][j] = Math.exp((0-dis*dis)/(2*hyperparameter*hyperparameter));
             }
         }
+        sparRatio = spar*1.0/(len*len);
 
         //输出相似矩阵W
 //        System.out.println("输出W矩阵");
@@ -74,69 +79,12 @@ public class SCluster {
 //            System.out.println();
 //        }
 
-        //求出 L 的前 k 个特征值（在本文中，除非特殊说明，否则“前 k 个”指按照特征值的大小从小到大的顺序）
-        // \{\lambda\}_{i=1}^k 以及对应的特征向量 \{\mathbf{v}\}_{i=1}^k 。引用jama包
-        //这里求特征值可以通过幂迭代的方法求特征值，借此提升计算速度，采用幂迭代的扩展直接求出K个最小的特征值，减少计算量
-        //inverse iteration 就是 对A矩阵求逆，然后跑power iteration 代码即可得到最小的特征值
-        //这里求逆矩阵的方法可以自己写而不用导包
-//        Matrix L_matrix = new Matrix(L);
-//        Matrix Inverse_L_matrix =  L_matrix.inverse();
-//        double[][] Inverse_L = Inverse_L_matrix.getArray();
-//
-//        ArrayList<double[]> ys = new ArrayList();
-//        ArrayList<Double> lamdbas = new ArrayList();
-//        ArrayList<double[][]> sub_matrix = new ArrayList();
-//        ArrayList<double[]> eigRec = PowerIteration(inverse_l);
-//        double eig = slove(eigRec.get(0));
-//        double[] eig_vec = eigRec.get(1);
-//        ys.add(eig_vec);
-//        lamdbas.add(eig);
-//        sub_matrix.add(Inverse_L);
-
-//        for (int i = 1; i < K; i++) {
-//            cal(i,ys,lamdbas,sub_matrix);
-//        }
-//        double[][] NK = new double[len][K];
-//        //产生N*K的矩阵
-//        int count = 0;
-//        for (;count< ys.size();count++) {
-//            for (int i = 0; i < len; i++) {
-//                NK[i][count] = ys.get(count)[i];
-//            }
-//        }
-
-
-//        EigenvalueDecomposition L_matrix_ed = new EigenvalueDecomposition(L_matrix);
-//        double[] eigs = L_matrix_ed.getRealEigenvalues().toArray();
-//        Algebra  alg = new Algebra();
-//        double[][] eig_vecs = alg.transpose(L_matrix_ed.getV()).toArray();
-//
-//        //取前K大，使用TreeMap，按照key排序，从小到大取K个出来
-//        TreeMap<Double, double[]> treeMap = new TreeMap<>(new Comparator<Double>() {
-//            @Override
-//            public int compare(Double o1, Double o2) {
-//                int i = -1;
-//                if (o1 < o2)
-//                    i = 1;
-//                return i;
-//            }
-//        });
-        //----------------------------------------------------
-        // 这里使用的是自己编写的幂迭代
-        //----------------------------------------------------
-//        Matrix Inverse_L_matrix = new Matrix(L_matrix.toArray());
-//       double[][] Inverse_L = Inverse_L_matrix.getArray();
-//        Matrix L = new Matrix(Inverse_L);
-//        EigDec ed = new EigDec();
-//        ArrayList<Matrix> evs = ed.Weilandt(L, K);
-
         //----------------------------------------------------
         // 这里使用python的脚本代码计算k个最小的特征值
         //----------------------------------------------------
         Util.write(L_matrix.toArray());
         try {
             String[] args = new String[] { "python", "sa.py", String.valueOf(K)};
-//            Process proc = Runtime.getRuntime().exec("python  sa.py"+" "+K);
             Process proc = Runtime.getRuntime().exec(args);
             proc.waitFor();
             System.out.println("python脚本正在运行");
@@ -147,20 +95,15 @@ public class SCluster {
         ArrayList<double[]> evs_a = Util.read();
 
         //----------------------------------------------------
-//        for (int i = 0; i < eigs.length; i++) {
-//            treeMap.put(eigs[i], eig_vecs[i]);
-//        }
         double[][] NK = new double[len][K];
         //产生N*K的矩阵
         int count = 0;
         for (double[] entry : evs_a) {
-//        for (Map.Entry<Double, double[]> entry:treeMap.entrySet()) {
             if (count >= K) {
                 break;
             }
             for (int i = 0; i < len; i++) {
                 NK[i][count] = entry[i];
-//                NK[i][count] = entry.getValue()[i];
             }
 
             count++;

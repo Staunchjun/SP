@@ -6,7 +6,12 @@ import GuideDataStructure.Node;
 import GuideDataStructure.Path;
 import GuideMainCode.Guider;
 import TestCode.InitMap;
+import Util.Util;
+import com.csvreader.CsvWriter;
+import org.python.antlr.ast.Str;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.*;
 
 /**
@@ -15,12 +20,12 @@ import java.util.*;
 public class TT2 {
     public static void main(String[] args) {
         ArrayList<Double> difs = new ArrayList<Double>();
-        for (int i = 0; i < 30; i++) {
-            double det = 0.5/30;
-            double threshold = 0;
-            threshold += det;
+        ArrayList<Double> spars = new ArrayList<>();
+        int times = 500;
+        double det = 0.8 / times;
+        double threshold = 0;
 
-            double dif = 0;
+
         TestPathGenerate testPathGenerate = new TestPathGenerate(false);
 
         Map<String, Set<Integer>> history = testPathGenerate.history;
@@ -33,65 +38,75 @@ public class TT2 {
                 dataSet.add(new ScDataPoint(e.getKey(), "b" + count));
             count++;
         }
-//        double threshold = 0.2;
-        //设置原始数据集,并开始聚类
-        SCluster sCluster = new SCluster(dataSet,testPathGenerate.K,threshold);
-
-//        MySpectrak mySpectrak = new MySpectrak();
-//        mySpectrak.buildClusterer(dataSet);
-        //得到所有聚类结果
-        ArrayList<ScCluster> clusters = sCluster.getCluster();
-
-//        ArrayList<ScCluster> clusters = new ArrayList<>();
-//        int clusterNum = mySpectrak.numOfClusters;
-//        for (int i = 0; i < clusterNum; i++) {
-//            ScCluster scCluster = new ScCluster();
-//            scCluster.setClusterName(String.valueOf(i));
-//            scCluster.setScDataPoints(new ArrayList<ScDataPoint>());
-//            clusters.add(scCluster);
-//        }
-//        int[] res = mySpectrak.cluster;
-//
-//        for (int i = 0; i < res.length; i++) {
-//            ScCluster scCluster = clusters.get(res[i]);
-//            List<ScDataPoint> points = scCluster.getScDataPoints();
-//            points.add(dataSet.get(i));
-//            scCluster.setScDataPoints(points);
-//        }
-//        for (ScCluster scCluster:clusters
-//             ) {
-//            System.out.println(scCluster.getClusterName()+"---"+scCluster.getScDataPoints().size());
-//        }
-        //计算所有簇类的概率分布
-        Map<Integer, Map<String, Map<Integer, Double>>> clusterDistributions = getClusterDistributions(testPathGenerate, history, clusters, false);
-
-        //计算路径聚类下的平均簇类
-        double[] MeanCustomersProducts1 = getMeanCluster(testPathGenerate, clusterDistributions);
-
-        //路径簇类和路径聚类下的平均簇类差值，这里不需要配对，因为平均簇类是一样的
-        computeErrorByMean(clusterDistributions, true, MeanCustomersProducts1);
-
-        //建立ErrorMap用于簇类配对(自身聚类后计算的概率分布和给定的用户的概率分布之差，error最小为一对)
-        int errorsMapLength = clusterDistributions.size();
-        double[][] errorsMap = createErrorMap(testPathGenerate, clusterDistributions, errorsMapLength);
-        //根据ErrorMap进行一一配对，打印路径簇类和给定概率簇类的比较
-        double clustered = pairClusterByErrormap(errorsMapLength, errorsMap, true);
-
-        //路径聚类下的平均簇类和给定顾客簇类的差值
-       double mean = errorMeancustomerAndCustomer(testPathGenerate, true, MeanCustomersProducts1);
-
-        dif = mean - clustered;
-        difs.add(dif);
-    }
-        double threshold = 0;
-        for (int i = 0; i < 30; i++) {
-            double det = 0.5/30;
+        for (int i = 0; i < times; i++) {
             threshold += det;
-            System.out.println(threshold +"  " + difs.get(i));
+            //设置原始数据集,并开始聚类
+            SCluster sCluster = new SCluster(dataSet, testPathGenerate.K, threshold);
+            spars.add(sCluster.sparRatio);
+            //得到所有聚类结果
+            ArrayList<ScCluster> clusters = sCluster.getCluster();
+
+            //计算所有簇类的概率分布
+            Map<Integer, Map<String, Map<Integer, Double>>> clusterDistributions = getClusterDistributions(testPathGenerate, history, clusters, false);
+
+            //计算路径聚类下的平均簇类
+            double[] MeanCustomersProducts1 = getMeanCluster(testPathGenerate, clusterDistributions);
+
+            //路径簇类和路径聚类下的平均簇类差值，这里不需要配对，因为平均簇类是一样的
+            computeErrorByMean(clusterDistributions, true, MeanCustomersProducts1);
+
+            //建立ErrorMap用于簇类配对(自身聚类后计算的概率分布和给定的用户的概率分布之差，error最小为一对)
+            int errorsMapLength = clusterDistributions.size();
+            double[][] errorsMap = createErrorMap(testPathGenerate, clusterDistributions, errorsMapLength);
+            //根据ErrorMap进行一一配对，打印路径簇类和给定概率簇类的比较
+            double clustered = pairClusterByErrormap(errorsMapLength, errorsMap, true);
+
+            //路径聚类下的平均簇类和给定顾客簇类的差值
+            double mean = errorMeancustomerAndCustomer(testPathGenerate, true, MeanCustomersProducts1);
+
+            double dif = mean - clustered;
+            difs.add(dif);
         }
-
-
+        System.out.println("正在写error.csv");
+        String errorFilePath = "error10001.csv";
+        Util.createFile(errorFilePath);
+        threshold = 0;
+        try {
+            // 创建CSV写对象
+            CsvWriter csvWriterError = new CsvWriter(errorFilePath, ',', Charset.forName("GBK"));
+            for (int i = 0; i < times; i++) {
+                threshold += det;
+                String[] headers = new String[2];
+                headers[0] = String.valueOf(threshold);
+                headers[1] = String.valueOf(difs.get(i));
+                csvWriterError.writeRecord(headers);
+                csvWriterError.flush();
+            }
+            csvWriterError.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("正在写sparsity.csv");
+        String sparsityFilePath = "sparsity10001.csv";
+        Util.createFile(sparsityFilePath);
+        double threshold2 = 0;
+        try {
+            // 创建CSV写对象
+            CsvWriter csvWriterSparsity = new CsvWriter(sparsityFilePath, ',', Charset.forName("GBK"));
+            for (int i = 0; i < times; i++) {
+                threshold2 += det;
+                String[] headers = new String[2];
+                headers[0] = String.valueOf(threshold2);
+                headers[1] = String.valueOf(spars.get(i));
+                csvWriterSparsity.writeRecord(headers);
+                csvWriterSparsity.flush();
+            }
+            csvWriterSparsity.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
+
     /**
      * 根据聚类出来的结果，计算平均cluster
      *
@@ -421,7 +436,7 @@ public class TT2 {
     /**
      * 得到单个簇类的概率分布
      *
-     * @param history //     * @param t
+     * @param history   //     * @param t
      * @param hcCluster
      * @return
      */
