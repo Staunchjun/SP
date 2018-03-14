@@ -13,11 +13,11 @@ import java.util.*;
  */
 public class TestPathGenerate {
     //N types of product eg:P1,P2,P3...Pn;表明有多少种商品
-    final static int N = 160;
+    final static int N = 1000;
     //购买的 最大上限
-    public static final int Npi = N / 4;
+    public static final int Npi = N / 50;
     //K types of customer eg:C1,C2,C3...Cn;表明有多少类型的顾客
-    final static int K = 3;
+    final static int K = 20;
     //M paths 表示要运行多少次，产生多少路径
     final static int M = 1000;
     //每个点有多少种类的商品。
@@ -53,6 +53,9 @@ public class TestPathGenerate {
      * Init running
      */
     public TestPathGenerate(boolean printOrNot) {
+        // 初始化graph
+        Graph graph = InitMap.returnGraph();
+
         Random random = new Random();
         history = new HashMap<String, Set<Integer>>();
         TNewCustomer = new HashMap<Integer, Set<Integer>>();
@@ -68,6 +71,7 @@ public class TestPathGenerate {
         //***************Generate M Path********************
         shopLists = new ArrayList<ArrayList<Integer>>();
         for (int L = 0; L < M; L++) {
+            System.out.println("生产路径："+L);
             //choose type of customer;
             int i = random.nextInt(K);
             //choose nb of products that Ci will buy;
@@ -112,36 +116,36 @@ public class TestPathGenerate {
             }
             shopLists.add(shopList);
 //            System.out.println();
-            GetPath(shopList, false);
+            GetPath(shopList, false,graph);
         }
         //***************Generate M Path********************
 
         //***************Generate T Customer********************
-        for (int L = 0; L < T; L++) {
-            //choose type of customer;
-            int i = random.nextInt(K);
-            //choose nb of products that Ci will buy;
-            int nb = random.nextInt(N / 4);
-            //choose which products are bought;
-            Set<Integer> shopList = new HashSet<Integer>();
-            for (int k = 0; k < nb; k++) {
-                double[] productProbability = CustomersProducts.get(i);
-                double meanPro = 1.0 / N;
-                int productId = random.nextInt(N);
-                while (meanPro * (1 + 0.6) > productProbability[productId]) {
-                    productId = random.nextInt(N);
-                }
-                shopList.add(productId);
-            }
-            if (printOrNot) {
-                System.out.println();
-                System.out.println("新客户" + L + "待购买商品列表:");
-                for (Integer toBuy : shopList) {
-                    System.out.print(toBuy + " ");
-                }
-            }
-            TNewCustomer.put(L, shopList);
-        }
+//        for (int L = 0; L < T; L++) {
+//            //choose type of customer;
+//            int i = random.nextInt(K);
+//            //choose nb of products that Ci will buy;
+//            int nb = random.nextInt(N / 4);
+//            //choose which products are bought;
+//            Set<Integer> shopList = new HashSet<Integer>();
+//            for (int k = 0; k < nb; k++) {
+//                double[] productProbability = CustomersProducts.get(i);
+//                double meanPro = 1.0 / N;
+//                int productId = random.nextInt(N);
+//                while (meanPro * (1 + 0.6) > productProbability[productId]) {
+//                    productId = random.nextInt(N);
+//                }
+//                shopList.add(productId);
+//            }
+//            if (printOrNot) {
+//                System.out.println();
+//                System.out.println("新客户" + L + "待购买商品列表:");
+//                for (Integer toBuy : shopList) {
+//                    System.out.print(toBuy + " ");
+//                }
+//            }
+//            TNewCustomer.put(L, shopList);
+//        }
     }
    //平均簇类只有一个，这里的平均不应该是对顾客簇类的平均，而是购买的平均，所以下面是错误的，应该是对购买历史的平均得到的平均用户簇类，
     //所以这里的平均客户簇类，是对历史数据进行聚类后再平均得到的平均
@@ -165,7 +169,7 @@ public class TestPathGenerate {
      * @param shopList1  购买列表
      * @param printOrNot 是否打印获取过程
      */
-    private void GetPath(ArrayList<Integer> shopList1, Boolean printOrNot) {
+    private void GetPath(ArrayList<Integer> shopList1, Boolean printOrNot, Graph graph) {
         Stack<Integer> shopListTemp = new Stack<>();
         Stack<Integer> shopList = new Stack<>();
         for (Integer i : shopList1) {
@@ -187,8 +191,6 @@ public class TestPathGenerate {
             System.out.println();
         }
         //Generating paths;
-        // 初始化graph
-        Graph graph = InitMap.returnGraph();
         Set<Node> nodes = new HashSet<Node>();
         for (int i : shopList)
             nodes.add(graph.getNode(pLocation.get(i)));
@@ -203,7 +205,7 @@ public class TestPathGenerate {
 
         while (shopList.size() != 0 && shopList != null) {
             Node des = graph.getNode(pLocation.get(shopList.pop()));
-            List<Path> paths = Guider.getSingleDestPath(graph, lastNode, des, null, 0.1, false);
+            List<Path> paths = Guider.getSingleDestPath(graph, lastNode, des, new ArrayList(), 0.1, false);
             //出现了起始点等于终点的情况 此时去除购买列表中所有位于起始点中的商品 eg:  4->4 路径不存在
             if (paths.isEmpty()) {
                 nodes.remove(graph.getNode(des.N));
@@ -303,9 +305,10 @@ public class TestPathGenerate {
     }
 
     private static void FillShelf() {
+        System.out.println("正在填充商品中....");
         shelf = new HashMap<Integer, Set<Integer>>();
         pLocation = new HashMap<Integer, Integer>();
-        for (int i = 0; i < 16; i++) {
+        for (int i = 0; i < 100; i++) {
             Set<Integer> products = new HashSet<Integer>();
             for (int j = 0; j < NN; j++) {
                 while (true) {
@@ -325,6 +328,7 @@ public class TestPathGenerate {
         }
         System.out.println();
         System.out.println("输出货架上的商品");
+
         for (Map.Entry e : shelf.entrySet()) {
             System.out.print(e.getKey());
             System.out.println(e.getValue());

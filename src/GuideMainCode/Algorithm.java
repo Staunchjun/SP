@@ -52,7 +52,7 @@ public class Algorithm {
         boolean isEdge = false;
         boolean isNode = false;
 
-        if (obs != null)
+        if (obs.size() > 0)
         {isEdge = obs.get(0) instanceof Edge;
             isNode = obs.get(0) instanceof Node;}
 
@@ -67,8 +67,10 @@ public class Algorithm {
         s.parent = null;
         priorityQueue.offer(s);
 
+        // 防止内存泄漏，当陷入无法到达的地方时候，直接放弃搜索
+        int numV3 = graph.getV() * graph.getV() * graph.getV() ;
 
-        while (!priorityQueue.isEmpty() && isRun) {
+        while (!priorityQueue.isEmpty() && isRun && priorityQueue.size()<numV3) {
             Node n = (Node) priorityQueue.poll();
             for (Node nn : n.getNeighbors()) {
                 // Make sure that next node will not arise again ,it means that we will not go back same place .
