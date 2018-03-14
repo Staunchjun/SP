@@ -8,6 +8,5 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="javacsv-2.1" level="project" />
-    <orderEntry type="library" name="colt" level="project" />
   </component>
 </module>
