@@ -4,8 +4,11 @@ import GuideDataStructure.Graph;
 import GuideDataStructure.Node;
 import GuideDataStructure.Path;
 import GuideMainCode.Guider;
-import TestCode.InitMap;
+import Util.Util;
+import com.csvreader.CsvWriter;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.*;
 
 /**
@@ -13,15 +16,15 @@ import java.util.*;
  */
 public class TestPathGenerate {
     //N types of product eg:P1,P2,P3...Pn;表明有多少种商品
-    final static int N = 1000;
+    final static int N = 1360;
     //购买的 最大上限
     public static final int Npi = N / 50;
     //K types of customer eg:C1,C2,C3...Cn;表明有多少类型的顾客
-    final static int K = 20;
+    final static int K = 10;
     //M paths 表示要运行多少次，产生多少路径
-    final static int M = 1000;
-    //每个点有多少种类的商品。
-    final static int NN = 10;
+    final static int M = 5000;
+    //每个点有多少种类的商品。 有 32 个障碍点
+    final static int NN = 1360/(100-32);
     //给定一个概率分布，这里的概率意思是每顾客对每一种商品的喜好程度，概率和为1。
     public static Map<Integer, double[]> CustomersProducts;
     //所有用户簇类平均的一个概率。
@@ -30,6 +33,7 @@ public class TestPathGenerate {
     final int T = 10;
     //所有的购物列表集合
     public ArrayList<ArrayList<Integer>> shopLists;
+
     public ArrayList<ArrayList<Integer>> getShopLists() {
         return shopLists;
     }
@@ -68,10 +72,11 @@ public class TestPathGenerate {
         //所有商品随机分配给16个点 0-15
         FillShelf();
 
+
         //***************Generate M Path********************
         shopLists = new ArrayList<ArrayList<Integer>>();
         for (int L = 0; L < M; L++) {
-            System.out.println("生产路径："+L);
+            System.out.println("生产路径：" + L);
             //choose type of customer;
             int i = random.nextInt(K);
             //choose nb of products that Ci will buy;
@@ -93,15 +98,14 @@ public class TestPathGenerate {
                 double[] wheel = new double[N];
                 wheel[0] = productProbability[0];
                 for (int j = 1; j < N; j++) {
-                    wheel[j] = productProbability[j] +wheel[j-1];
+                    wheel[j] = productProbability[j] + wheel[j - 1];
                 }
                 int productId = 0;
                 //
-                for (int j = N-1; j >= 1 ; j--) {
+                for (int j = N - 1; j >= 1; j--) {
 
-                    if (wheel[j] > q && wheel[j-1]>0)
-                    {
-                         productId = j;
+                    if (wheel[j] > q && wheel[j - 1] > 0) {
+                        productId = j;
                     }
 
                 }
@@ -116,7 +120,7 @@ public class TestPathGenerate {
             }
             shopLists.add(shopList);
 //            System.out.println();
-            GetPath(shopList, false,graph);
+            GetPath(shopList, false, graph);
         }
         //***************Generate M Path********************
 
@@ -147,7 +151,7 @@ public class TestPathGenerate {
 //            TNewCustomer.put(L, shopList);
 //        }
     }
-   //平均簇类只有一个，这里的平均不应该是对顾客簇类的平均，而是购买的平均，所以下面是错误的，应该是对购买历史的平均得到的平均用户簇类，
+    //平均簇类只有一个，这里的平均不应该是对顾客簇类的平均，而是购买的平均，所以下面是错误的，应该是对购买历史的平均得到的平均用户簇类，
     //所以这里的平均客户簇类，是对历史数据进行聚类后再平均得到的平均
 //    private void MeanCustomerCluster() {
 //        for (Map.Entry<Integer, double[]> e : CustomersProducts.entrySet()) {
@@ -170,6 +174,44 @@ public class TestPathGenerate {
      * @param printOrNot 是否打印获取过程
      */
     private void GetPath(ArrayList<Integer> shopList1, Boolean printOrNot, Graph graph) {
+        /**
+         * 障碍点
+         */
+        List<Node> obs = new ArrayList<>();
+        obs.add(graph.getNode(11));
+        obs.add(graph.getNode(21));
+        obs.add(graph.getNode(31));
+        obs.add(graph.getNode(13));
+        obs.add(graph.getNode(23));
+        obs.add(graph.getNode(33));
+        obs.add(graph.getNode(15));
+        obs.add(graph.getNode(25));
+        obs.add(graph.getNode(35));
+        obs.add(graph.getNode(17));
+        obs.add(graph.getNode(37));
+        obs.add(graph.getNode(18));
+        obs.add(graph.getNode(38));
+        obs.add(graph.getNode(51));
+        obs.add(graph.getNode(52));
+        obs.add(graph.getNode(71));
+        obs.add(graph.getNode(72));
+        obs.add(graph.getNode(91));
+        obs.add(graph.getNode(92));
+        obs.add(graph.getNode(54));
+        obs.add(graph.getNode(64));
+        obs.add(graph.getNode(56));
+        obs.add(graph.getNode(66));
+        obs.add(graph.getNode(76));
+        obs.add(graph.getNode(58));
+        obs.add(graph.getNode(68));
+        obs.add(graph.getNode(78));
+        obs.add(graph.getNode(94));
+        obs.add(graph.getNode(95));
+        obs.add(graph.getNode(96));
+        obs.add(graph.getNode(98));
+        obs.add(graph.getNode(9));
+
+
         Stack<Integer> shopListTemp = new Stack<>();
         Stack<Integer> shopList = new Stack<>();
         for (Integer i : shopList1) {
@@ -205,7 +247,7 @@ public class TestPathGenerate {
 
         while (shopList.size() != 0 && shopList != null) {
             Node des = graph.getNode(pLocation.get(shopList.pop()));
-            List<Path> paths = Guider.getSingleDestPath(graph, lastNode, des, new ArrayList(), 0.1, false);
+            List<Path> paths = Guider.getSingleDestPath(graph, lastNode, des, obs, 0.1, false);
             //出现了起始点等于终点的情况 此时去除购买列表中所有位于起始点中的商品 eg:  4->4 路径不存在
             if (paths.isEmpty()) {
                 nodes.remove(graph.getNode(des.N));
@@ -282,33 +324,102 @@ public class TestPathGenerate {
             stringBuffer.append(",");
         }
         // 这里添加判断，过短的路径要剔除
-        if (stringBuffer.toString().length() >  20)
-        history.put(stringBuffer.toString(), shopListSet);
+        if (stringBuffer.toString().length() > 20)
+            history.put(stringBuffer.toString(), shopListSet);
     }
 
+    /**
+     * 初始化，不同簇类的用户对喜欢不同类型的产品喜好不一样
+     */
     private void InitCustomersProducts() {
         CustomersProducts = new HashMap<Integer, double[]>();
         for (int i = 0; i < K; i++) {
             double[] products = getRandDistArray(N, 1.0);
             CustomersProducts.put(new Integer(i), products);
         }
-//        // 检查初始化是否和为1
-//        for (HashMap.Entry<Integer, double[]> temp:CustomersProducts.entrySet()) {
-//            double sum = 0;
-//            for (Double d:temp.getValue())
-//            {
-//                sum += d;
-//            }
-//            System.out.println("顾客："+temp.getKey()+" 概率和："+sum);
-//        }
-//
+
+        System.out.println("正在写用户概率分布CustomerDistribution.csv");
+        String customerDistributionFile = "/Users/ruanwenjun/IdeaProjects/SP/src/csvData/CustomerDistribution.csv";
+        Util.createFile(customerDistributionFile);
+        try {
+            // 创建CSV写对象
+            CsvWriter csvWriterSparsity = new CsvWriter(customerDistributionFile, ',', Charset.forName("GBK"));
+
+            for (Map.Entry<Integer, double[]> cp : CustomersProducts.entrySet()) {
+                String[] headers = new String[2];
+                headers[0] = String.valueOf(cp.getKey());
+                StringBuilder stringBuilder = new StringBuilder();
+                for (double d : cp.getValue()) {
+                    stringBuilder.append(d);
+                    stringBuilder.append(",");
+                }
+                headers[1] = stringBuilder.toString();
+                csvWriterSparsity.writeRecord(headers);
+                csvWriterSparsity.flush();
+            }
+            csvWriterSparsity.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        /** 检查初始化是否和为1
+         for (HashMap.Entry<Integer, double[]> temp:CustomersProducts.entrySet()) {
+         double sum = 0;
+         for (Double d:temp.getValue())
+         {
+         sum += d;
+         }
+         System.out.println("顾客："+temp.getKey()+" 概率和："+sum);
+         }
+         **/
+
     }
 
     private static void FillShelf() {
         System.out.println("正在填充商品中....");
         shelf = new HashMap<Integer, Set<Integer>>();
         pLocation = new HashMap<Integer, Integer>();
+        ArrayList<Integer> obs = new ArrayList();
+        obs.add(11);
+        obs.add(21);
+        obs.add(31);
+        obs.add(13);
+        obs.add(23);
+        obs.add(33);
+        obs.add(15);
+        obs.add(25);
+        obs.add(35);
+        obs.add(17);
+        obs.add(37);
+        obs.add(18);
+        obs.add(38);
+        obs.add(51);
+        obs.add(52);
+        obs.add(71);
+        obs.add(72);
+        obs.add(91);
+        obs.add(92);
+        obs.add(54);
+        obs.add(64);
+        obs.add(56);
+        obs.add(66);
+        obs.add(76);
+        obs.add(58);
+        obs.add(68);
+        obs.add(78);
+        obs.add(94);
+        obs.add(95);
+        obs.add(96);
+        obs.add(98);
+        obs.add(9);
+
         for (int i = 0; i < 100; i++) {
+
+            if (obs.contains(i)) {
+                continue;
+            }
+
+
             Set<Integer> products = new HashSet<Integer>();
             for (int j = 0; j < NN; j++) {
                 while (true) {
@@ -332,6 +443,30 @@ public class TestPathGenerate {
         for (Map.Entry e : shelf.entrySet()) {
             System.out.print(e.getKey());
             System.out.println(e.getValue());
+        }
+
+        System.out.println("正在写货架商品分布Shelf.csv");
+        String ShelfFile = "/Users/ruanwenjun/IdeaProjects/SP/src/csvData/Shelf.csv";
+        Util.createFile(ShelfFile);
+        try {
+            // 创建CSV写对象
+            CsvWriter csvWriterSparsity = new CsvWriter(ShelfFile, ',', Charset.forName("GBK"));
+
+            for (Map.Entry<Integer, Set<Integer>> s : shelf.entrySet()) {
+                String[] headers = new String[2];
+                headers[0] = String.valueOf(s.getKey());
+                StringBuilder stringBuilder = new StringBuilder();
+                for (Integer d : s.getValue()) {
+                    stringBuilder.append(d);
+                    stringBuilder.append(",");
+                }
+                headers[1] = stringBuilder.toString();
+                csvWriterSparsity.writeRecord(headers);
+                csvWriterSparsity.flush();
+            }
+            csvWriterSparsity.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

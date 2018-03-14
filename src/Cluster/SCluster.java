@@ -1,6 +1,5 @@
 package Cluster;
 
-import Jama.Matrix;
 import Util.EditDistance;
 import Util.Util;
 import cern.colt.matrix.DoubleMatrix2D;

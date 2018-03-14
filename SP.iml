@@ -7,11 +7,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="weka-spectral-clusterer" level="project" />
-    <orderEntry type="library" name="weka" level="project" />
-    <orderEntry type="library" name="colt" level="project" />
-    <orderEntry type="library" name="Jama-1.0.31" level="project" />
-    <orderEntry type="library" name="jython-2.5.0" level="project" />
     <orderEntry type="library" name="javacsv-2.1" level="project" />
+    <orderEntry type="library" name="colt" level="project" />
   </component>
 </module>

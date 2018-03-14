@@ -1,4 +1,6 @@
-package RecommendPath;
+package TestCode;
+
+import RecommendPath.Product;
 
 import java.util.List;
 import java.util.Map;

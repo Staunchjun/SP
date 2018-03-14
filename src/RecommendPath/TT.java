@@ -7,102 +7,62 @@ import GuideDataStructure.Graph;
 import GuideDataStructure.Node;
 import GuideDataStructure.Path;
 import GuideMainCode.Guider;
-import TestCode.InitMap;
+import com.csvreader.CsvReader;
+import org.python.antlr.op.In;
 
+import java.io.File;
+import java.io.FileReader;
+import java.nio.charset.Charset;
 import java.util.*;
+
+import static RecommendPath.TestPathGenerate.history;
 
 /**
  * Created by Administrator on 2017/7/7 0007.
  */
 public class TT {
-    public static void main(String[] args) {
-        TestPathGenerate testPathGenerate = new TestPathGenerate(false);
+    public static void main(String[] args) throws Exception {
+//        TestPathGenerate testPathGenerate = new TestPathGenerate(false);
+//        Map<String, Set<Integer>> history = testPathGenerate.history;
+        long start = System.currentTimeMillis();
+        Map<String, Set<Integer>> history = new HashMap<String, Set<Integer>>();
+        CsvReader reader = new CsvReader("/Users/ruanwenjun/IdeaProjects/SP/src/csvData/Paths.csv", ',', Charset.forName("GBK"));
+        while (reader.readRecord()) {
+           String s =  reader.getValues()[1];
+           String[] ss = s.split(",");
+           Set<Integer> integerSet = new HashSet<>();
+            for (String sss:ss) {
+                integerSet.add(Integer.valueOf(sss));
+            }
 
-        Map<String, Set<Integer>> history = testPathGenerate.history;
-//        Map<Integer, Set<Integer>> TNewCustomer = testPathGenerate.TNewCustomer;
-//
-//        List<Double> errors = new ArrayList<Double>();
-//        for (Map.Entry<Integer, Set<Integer>> newCustomer : TNewCustomer.entrySet()) {
-//            // 初始化graph
-//            //Generating paths;
-//            Graph graph = InitMap.returnGraph();
-//            Set<Node> nodes = new HashSet<Node>();
-//
-//            //Generating restBuy
-//            Node Jnode = null;
-//            int alyeadyBuy = 0;
-//            List<Integer> restBuy = new ArrayList<Integer>();
-//            int J = (int) (newCustomer.getValue().size() - newCustomer.getValue().size() * 0.5);
-//            for (int i : newCustomer.getValue()) {
-//                if (alyeadyBuy <= J) {
-//                    if (alyeadyBuy == J - 1) {
-//                        Jnode = graph.getNode(testPathGenerate.pLocation.get(i));
-//                    }
-//                    nodes.add(graph.getNode(testPathGenerate.pLocation.get(i)));
-//                    alyeadyBuy++;
-//                } else {
-//                    restBuy.add(i);
-//                }
-//            }
-////            System.out.println();
-////            System.out.println("已经路过的点:");
-////            for (Node node : nodes) {
-////                System.out.print(node.N + "  ");
-////            }
-//
-//
-//            //Generating path datapoint
-//            Stack<Node> finalPath = new Stack<Node>();
-//            Node lastNode = graph.getNode(0);
-//            while (nodes.size() != 0 && nodes != null) {
-//                Node des = graph.getNode(nodes.iterator().next().N);
-//                List<Path> paths = Guider.getSingleDestPath(graph, lastNode, des, null, 0.1, false);
-//                if (paths.isEmpty()) {
-//                    //出现了自己去自己,eg:  4->4
-//                    nodes.remove(graph.getNode(des.N));
-//                    continue;
-//                }
-//                Path bestPath = paths.get(0);
-//                Stack<Node> tempPath = new Stack<Node>();
-//                for (Node node : bestPath.getNodes()) {
-//                    tempPath.push(node);
-//                    if (nodes.contains(graph.getNode(node.N))) {
-//                        nodes.remove(graph.getNode(node.N));
-//                    }
-//                }
-////                if (nodes.isEmpty()) {
-////                    System.out.println("nodes 清空");
-////                }
-//                System.out.println();
-//                while (!tempPath.isEmpty()) {
-//                    if (!finalPath.isEmpty()) {
-//                        Node topNode = finalPath.peek();
-//                        if (topNode == tempPath.peek()) {
-//                            finalPath.pop();
-//                        }
-//                    }
-//                    finalPath.push(tempPath.pop());
-//                }
-//                if (nodes.isEmpty()) {
-//                    break;
-//                }
-//                lastNode = graph.getNode(finalPath.peek().N);
-//            }
-//            StringBuffer stringBuffer = new StringBuffer();
-//            Node node_j_1 = null;
-//            for (Node node : finalPath) {
-////                System.out.print(node.N + "->");
-//                stringBuffer.append(node.N);
-//                stringBuffer.append(",");
-//                node_j_1 = node;
-//            }
+            history.put(reader.getValues()[0],integerSet);
 
-        //add datapoint
-//            HcDataPoint t = new HcDataPoint(stringBuffer.toString(), "t11");
+        }
+        reader.close();
+
+
+        ArrayList<String[]> customerDistributionRaw = new ArrayList<String[]>();
+        reader = new CsvReader("/Users/ruanwenjun/IdeaProjects/SP/src/csvData/CustomerDistribution.csv", ',', Charset.forName("GBK"));
+        while (reader.readRecord()) {
+            customerDistributionRaw.add(reader.getValues());
+        }
+        reader.close();
+
+        Map<Integer, double[]> customerDistribution = new HashMap<>();
+        for (String[] data : customerDistributionRaw) {
+            String[] pro = data[1].split(",");
+            double[] pros = new double[pro.length];
+            for (int i = 0; i < pro.length; i++) {
+                pros[i] = Double.valueOf(pro[i]);
+            }
+            customerDistribution.put(Integer.valueOf(data[0]), pros);
+        }
+
+
         //加载历史数据，并且添加要搜寻的数据
         ArrayList<HcDataPoint> dataSet = new ArrayList<HcDataPoint>();
         int count = 0;
-        for (HashMap.Entry<String, Set<Integer>> e : history.entrySet()) {
+        for ( Map.Entry<String, Set<Integer>> e : history.entrySet()) {
             if (e.getKey().length() != 0)
                 dataSet.add(new HcDataPoint(e.getKey(), "b" + count));
             count++;
@@ -112,81 +72,44 @@ public class TT {
         //设置原始数据集,不开始聚类,直接对历史做平均。
 
         //设置原始数据集,并开始聚类
-        List<HcCluster> finalHcClusters = HCluster.startCluster(dataSet, testPathGenerate.K, 0.5);
+        List<HcCluster> finalHcClusters = HCluster.startCluster(dataSet, customerDistribution.size(), 0.5);
 
         //看聚类结果
         chekCluster(finalHcClusters);
 
         //计算所有簇类的概率分布
-        Map<Integer, Map<String, Map<Integer, Double>>> clusterDistributions = getClusterDistributions(testPathGenerate, history, finalHcClusters, false);
-
-        //检查clusterDistribnutions  中的概率和是否为1
-//        for (Map.Entry<Integer, Map<String, Map<Integer, Double>>> e : clusterDistributions.entrySet()
-//                ) {
-//            Map<String, Map<Integer, Double>> m = e.getValue();
-//            for (Map.Entry<String, Map<Integer, Double>> e1 : m.entrySet()) {
-//                Map<Integer, Double> eee =
-//                        e1.getValue();
-//                double sum = 0;
-//                for (Map.Entry<Integer, Double> eeeee : eee.entrySet()) {
-//                   sum += eeeee.getValue();
-//
-//                }
-//                 System.out.println("簇类"+e1.getKey( )+"的和：");
-//                 System.out.println(sum);
-//            }
-//
-//        }
+        Map<Integer, Map<String, Map<Integer, Double>>> clusterDistributions = getClusterDistributions(customerDistribution, history, finalHcClusters, false);
 
         //计算路径聚类下的平均簇类
-        double[] MeanCustomersProducts1 = getMeanCluster(testPathGenerate, clusterDistributions);
+        double[] MeanCustomersProducts1 = getMeanCluster(customerDistribution, clusterDistributions);
 
         //路径簇类和路径聚类下的平均簇类差值，这里不需要配对，因为平均簇类是一样的
         computeErrorByMean(clusterDistributions, true, MeanCustomersProducts1);
 
         //建立ErrorMap用于簇类配对(自身聚类后计算的概率分布和给定的用户的概率分布之差，error最小为一对)
         int errorsMapLength = clusterDistributions.size();
-        double[][] errorsMap = createErrorMap(testPathGenerate, clusterDistributions, errorsMapLength);
+        double[][] errorsMap = createErrorMap(customerDistribution, clusterDistributions, errorsMapLength);
         //根据ErrorMap进行一一配对，打印路径簇类和给定概率簇类的比较
         pairClusterByErrormap(errorsMapLength, errorsMap, true);
 
         //路径聚类下的平均簇类和给定顾客簇类的差值
-        errorMeancustomerAndCustomer(testPathGenerate, true, MeanCustomersProducts1);
+        errorMeancustomerAndCustomer(customerDistribution, true, MeanCustomersProducts1);
 
-        //计算targer t 所在簇类的概率分布
-        //System.out.println("target list node:" + t.getDataPointName() + " cluster:" + t.getHcCluster().getClusterName());
-//            HcCluster cluster = t.getHcCluster();
-//            //每一个簇类的概率,商品不存在的补0
-//            Map<Integer, Double> ProductProbability = getClusterDistribution(history, t, cluster, false);
-//            for (int i = 0; i < testPathGenerate.N; i++) {
-//                if (!ProductProbability.containsKey(i)) {
-//                    ProductProbability.put(i, 0.0);
-//                }
-//            }
-//            if (ProductProbability == null) break;
+        long end = System.currentTimeMillis();
 
-        // 带有的总概率算预测接下来的路径推荐，
-        // 看回最初的路径推荐算法
-//            if (RecommendPath(testPathGenerate, Jnode, restBuy, node_j_1, ProductProbability,true)) continue;
-
-        //下面做一個對比 ，已經知道了這個用戶是哪一類的顧客，拿到那一類顧客對所有商品的概率
-//            Compare(testPathGenerate, errors, newCustomer, ProductProbability, MeanCustomersProducts1);
-
-
-        // break;
-        //}
+        System.out.println("总耗费时间为："+(end-start));
     }
 
     /**
      * 根据聚类出来的结果，计算平均cluster
      *
-     * @param testPathGenerate
+     * @param customerDistribution
      * @param clusterDistributions
      * @return
      */
-    private static double[] getMeanCluster(TestPathGenerate testPathGenerate, Map<Integer, Map<String, Map<Integer, Double>>> clusterDistributions) {
-        double[] MeanCustomersProducts = new double[testPathGenerate.N];
-        for (int i = 0; i < testPathGenerate.K; i++) {
+    private static double[] getMeanCluster(Map<Integer, double[]> customerDistribution, Map<Integer, Map<String, Map<Integer, Double>>> clusterDistributions) {
+        double[] MeanCustomersProducts = new double[customerDistribution.get(0).length];
+        for (int i = 0; i < customerDistribution.size(); i++) {
             Map<String, Map<Integer, Double>> clusterDistributionTemp = clusterDistributions.get(i);
             for (Map.Entry<String, Map<Integer, Double>> e : clusterDistributionTemp.entrySet()) {
                 Map<Integer, Double> ee = e.getValue();//e.getKey()拿到的是cluster的名字
@@ -196,8 +119,8 @@ public class TT {
             }
 
         }
-        for (int j = 0; j < testPathGenerate.N; j++) {
-            MeanCustomersProducts[j] = MeanCustomersProducts[j] / testPathGenerate.K;
+        for (int j = 0; j < customerDistribution.get(0).length; j++) {
+            MeanCustomersProducts[j] = MeanCustomersProducts[j] / customerDistribution.size();
         }
         return MeanCustomersProducts;
     }
@@ -249,8 +172,6 @@ public class TT {
     private static boolean RecommendPath(TestPathGenerate testPathGenerate, Node jnode, List<Integer> restBuy, Node node_j_1, Map<Integer, Double> productProbability, boolean printlOrNot) {
         Graph graphWP = InitMap.returnGraphWP(productProbability, testPathGenerate);
         List<Path> paths = Guider.getSingleDestPath(graphWP, node_j_1, graphWP.getNode(jnode.N), null, 0.1, printlOrNot);
-
-
         System.out.println("用户要购买但是还没买的：");
         for (int i : restBuy) {
             System.out.print(i + " ");
@@ -298,14 +219,14 @@ public class TT {
     /**
      * 给定概率的顾客簇类和路径聚类下的平均簇类的比较
      *
-     * @param testPathGenerate
+     * @param customerDistribution
      * @param printOrNot
      */
-    private static void errorMeancustomerAndCustomer(TestPathGenerate testPathGenerate, boolean printOrNot, double[] MeanCustomersProducts1) {
+    private static void errorMeancustomerAndCustomer(Map<Integer, double[]> customerDistribution, boolean printOrNot, double[] MeanCustomersProducts1) {
         List<Double> errListWithMean = new ArrayList<>();
-        for (int i = 0; i < testPathGenerate.K; i++) {
+        for (int i = 0; i < customerDistribution.size(); i++) {
             int productNum = MeanCustomersProducts1.length;
-            Map<Integer, double[]> CustomersProducts = testPathGenerate.CustomersProducts;
+            Map<Integer, double[]> CustomersProducts = customerDistribution;
             double[] pros = CustomersProducts.get(i);
 
             double error = 0;
@@ -375,17 +296,17 @@ public class TT {
     /**
      * 二维误差数组，用于簇类配对
      *
-     * @param testPathGenerate
+     * @param customerDistribution
      * @param clusterDistributions
      * @param errorsMapLength
      * @return
      */
-    private static double[][] createErrorMap(TestPathGenerate testPathGenerate, Map<Integer, Map<String, Map<Integer, Double>>> clusterDistributions, int errorsMapLength) {
+    private static double[][] createErrorMap(Map<Integer, double[]> customerDistribution, Map<Integer, Map<String, Map<Integer, Double>>> clusterDistributions, int errorsMapLength) {
         double[][] errorsMap = new double[errorsMapLength][errorsMapLength];
         //i ->Path cluster j-> given customer cluster
         for (int i = 0; i < errorsMapLength; i++) {
             for (int j = 0; j < errorsMapLength; j++) {
-                double[] distributionByCustomer = testPathGenerate.CustomersProducts.get(j);
+                double[] distributionByCustomer = customerDistribution.get(j);
                 int productNum = distributionByCustomer.length;
                 Map<String, Map<Integer, Double>> clusterDistributionTemp = clusterDistributions.get(i);
                 double[] distributionByPath = new double[productNum];
@@ -466,12 +387,12 @@ public class TT {
     /**
      * 得到所有簇类的概率分布
      *
-     * @param testPathGenerate
+     * @param customerDistribution
      * @param history          //     * @param t
      * @param finalHcClusters
      * @return
      */
-    private static Map<Integer, Map<String, Map<Integer, Double>>> getClusterDistributions(TestPathGenerate testPathGenerate, Map<String, Set<Integer>> history, List<HcCluster> finalHcClusters, Boolean printOrNot) {
+    private static Map<Integer, Map<String, Map<Integer, Double>>> getClusterDistributions(Map<Integer, double[]> customerDistribution, Map<String, Set<Integer>> history, List<HcCluster> finalHcClusters, Boolean printOrNot) {
         Map<Integer, Map<String, Map<Integer, Double>>> clusterDistributions = new HashMap<Integer, Map<String, Map<Integer, Double>>>();
         int countCluster = 0;
         for (int m = 0; m < finalHcClusters.size(); m++) {
@@ -483,7 +404,7 @@ public class TT {
             clusterDistribution.put((finalHcClusters.get(m).getClusterName()), productNum);
             //每一个簇类的概率,商品不存在的补0
             for (Map.Entry<String, Map<Integer, Double>> e : clusterDistribution.entrySet()) {
-                for (int i = 0; i < testPathGenerate.N; i++) {
+                for (int i = 0; i < customerDistribution.size() ; i++) {
                     if (!e.getValue().containsKey(i)) {
                         e.getValue().put(i, 0.0);
                     }
@@ -501,7 +422,7 @@ public class TT {
     /**
      * 得到单个簇类的概率分布
      *
-     * @param history //     * @param t
+     * @param history   //     * @param t
      * @param hcCluster
      * @return
      */
@@ -547,3 +468,126 @@ public class TT {
 }
 
 
+//        Map<Integer, Set<Integer>> TNewCustomer = testPathGenerate.TNewCustomer;
+//
+//        List<Double> errors = new ArrayList<Double>();
+//        for (Map.Entry<Integer, Set<Integer>> newCustomer : TNewCustomer.entrySet()) {
+//            // 初始化graph
+//            //Generating paths;
+//            Graph graph = InitMap.returnGraph();
+//            Set<Node> nodes = new HashSet<Node>();
+//
+//            //Generating restBuy
+//            Node Jnode = null;
+//            int alyeadyBuy = 0;
+//            List<Integer> restBuy = new ArrayList<Integer>();
+//            int J = (int) (newCustomer.getValue().size() - newCustomer.getValue().size() * 0.5);
+//            for (int i : newCustomer.getValue()) {
+//                if (alyeadyBuy <= J) {
+//                    if (alyeadyBuy == J - 1) {
+//                        Jnode = graph.getNode(testPathGenerate.pLocation.get(i));
+//                    }
+//                    nodes.add(graph.getNode(testPathGenerate.pLocation.get(i)));
+//                    alyeadyBuy++;
+//                } else {
+//                    restBuy.add(i);
+//                }
+//            }
+////            System.out.println();
+////            System.out.println("已经路过的点:");
+////            for (Node node : nodes) {
+////                System.out.print(node.N + "  ");
+////            }
+//
+//
+//            //Generating path datapoint
+//            Stack<Node> finalPath = new Stack<Node>();
+//            Node lastNode = graph.getNode(0);
+//            while (nodes.size() != 0 && nodes != null) {
+//                Node des = graph.getNode(nodes.iterator().next().N);
+//                List<Path> paths = Guider.getSingleDestPath(graph, lastNode, des, null, 0.1, false);
+//                if (paths.isEmpty()) {
+//                    //出现了自己去自己,eg:  4->4
+//                    nodes.remove(graph.getNode(des.N));
+//                    continue;
+//                }
+//                Path bestPath = paths.get(0);
+//                Stack<Node> tempPath = new Stack<Node>();
+//                for (Node node : bestPath.getNodes()) {
+//                    tempPath.push(node);
+//                    if (nodes.contains(graph.getNode(node.N))) {
+//                        nodes.remove(graph.getNode(node.N));
+//                    }
+//                }
+////                if (nodes.isEmpty()) {
+////                    System.out.println("nodes 清空");
+////                }
+//                System.out.println();
+//                while (!tempPath.isEmpty()) {
+//                    if (!finalPath.isEmpty()) {
+//                        Node topNode = finalPath.peek();
+//                        if (topNode == tempPath.peek()) {
+//                            finalPath.pop();
+//                        }
+//                    }
+//                    finalPath.push(tempPath.pop());
+//                }
+//                if (nodes.isEmpty()) {
+//                    break;
+//                }
+//                lastNode = graph.getNode(finalPath.peek().N);
+//            }
+//            StringBuffer stringBuffer = new StringBuffer();
+//            Node node_j_1 = null;
+//            for (Node node : finalPath) {
+////                System.out.print(node.N + "->");
+//                stringBuffer.append(node.N);
+//                stringBuffer.append(",");
+//                node_j_1 = node;
+//            }
+
+//add datapoint
+//            HcDataPoint t = new HcDataPoint(stringBuffer.toString(), "t11");
+
+
+//检查clusterDistribnutions  中的概率和是否为1
+//        for (Map.Entry<Integer, Map<String, Map<Integer, Double>>> e : clusterDistributions.entrySet()
+//                ) {
+//            Map<String, Map<Integer, Double>> m = e.getValue();
+//            for (Map.Entry<String, Map<Integer, Double>> e1 : m.entrySet()) {
+//                Map<Integer, Double> eee =
+//                        e1.getValue();
+//                double sum = 0;
+//                for (Map.Entry<Integer, Double> eeeee : eee.entrySet()) {
+//                   sum += eeeee.getValue();
+//
+//                }
+//                 System.out.println("簇类"+e1.getKey( )+"的和：");
+//                 System.out.println(sum);
+//            }
+//
+//        }
+
+
+//计算targer t 所在簇类的概率分布
+//System.out.println("target list node:" + t.getDataPointName() + " cluster:" + t.getHcCluster().getClusterName());
+//            HcCluster cluster = t.getHcCluster();
+//            //每一个簇类的概率,商品不存在的补0
+//            Map<Integer, Double> ProductProbability = getClusterDistribution(history, t, cluster, false);
+//            for (int i = 0; i < testPathGenerate.N; i++) {
+//                if (!ProductProbability.containsKey(i)) {
+//                    ProductProbability.put(i, 0.0);
+//                }
+//            }
+//            if (ProductProbability == null) break;
+
+// 带有的总概率算预测接下来的路径推荐，
+// 看回最初的路径推荐算法
+//            if (RecommendPath(testPathGenerate, Jnode, restBuy, node_j_1, ProductProbability,true)) continue;
+
+//下面做一個對比 ，已經知道了這個用戶是哪一類的顧客，拿到那一類顧客對所有商品的概率
+//            Compare(testPathGenerate, errors, newCustomer, ProductProbability, MeanCustomersProducts1);
+
+
+// break;
+//}

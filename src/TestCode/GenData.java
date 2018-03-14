@@ -1,6 +1,7 @@
-package RecommendPath;
+package TestCode;
 
 import Cluster.HcDataPoint;
+import RecommendPath.Product;
 
 import java.util.*;
 

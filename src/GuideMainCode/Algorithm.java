@@ -74,6 +74,7 @@ public class Algorithm {
             Node n = (Node) priorityQueue.poll();
             for (Node nn : n.getNeighbors()) {
                 // Make sure that next node will not arise again ,it means that we will not go back same place .
+                if (isRun){
                 boolean isObstacle = false;
                 if (obs != null)
                 {
@@ -121,6 +122,8 @@ public class Algorithm {
                         Node graphNode = graph.getNode(nn.N);
                         insertPq(priorityQueue, n, graphNode.clone(new_nn), temp_G, temp_H, temp_F);
                     }
+
+                }
 
                 }
 

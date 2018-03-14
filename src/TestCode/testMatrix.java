@@ -17,10 +17,30 @@ import java.util.*;
 public class testMatrix {
     public static void main(String[] args) throws Exception {
 
-        write();
-        Process proc = Runtime.getRuntime().exec("python  sa.py");
-        proc.waitFor();
-        read();
+//        write();
+//        Process proc = Runtime.getRuntime().exec("python  sa.py");
+//        proc.waitFor();
+//        read();
+
+
+        ArrayList<String []> customerDistributionRaw = new ArrayList<String[]>();
+        CsvReader reader = new CsvReader("/Users/ruanwenjun/IdeaProjects/SP/src/csvData/CustomerDistribution.csv",',', Charset.forName("GBK"));
+        while(reader.readRecord()) {
+            customerDistributionRaw.add(reader.getValues());
+        }
+        reader.close();
+
+        Map<Integer,double[]> customerDistribution = new HashMap<>();
+        for (String[] data: customerDistributionRaw) {
+            String[] pro =  data[1].split(",");
+            double[] pros = new double[pro.length];
+            for (int i = 0; i < pro.length; i++) {
+                pros[i]=Double.valueOf(pro[i]);
+            }
+            customerDistribution.put(Integer.valueOf(data[0]),pros);
+        }
+
+
     }
 
     private static void testExtensionPowerMethod() {
