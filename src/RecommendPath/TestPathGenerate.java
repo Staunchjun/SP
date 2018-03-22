@@ -16,19 +16,17 @@ import java.util.*;
  */
 public class TestPathGenerate {
     //N types of product eg:P1,P2,P3...Pn;表明有多少种商品
-    final static int N = 1360;
+    public static int N = 1360;
     //购买的 最大上限
-    public static final int Npi = N / 50;
+    public static int Npi = N / 50;
     //K types of customer eg:C1,C2,C3...Cn;表明有多少类型的顾客
-    final static int K = 10;
+    public static int K = 10;
     //M paths 表示要运行多少次，产生多少路径
-    final static int M = 5000;
+    public static int M = 1000;
     //每个点有多少种类的商品。 有 32 个障碍点
-    final static int NN = 1360/(100-32);
+    public static int NN = N / (100 - 32);
     //给定一个概率分布，这里的概率意思是每顾客对每一种商品的喜好程度，概率和为1。
     public static Map<Integer, double[]> CustomersProducts;
-    //所有用户簇类平均的一个概率。
-// public static double[] MeanCustomersProducts = new double[N];
     //T个新的顾客，只知道他们将要购物的清单列表
     final int T = 10;
     //所有的购物列表集合
@@ -53,10 +51,19 @@ public class TestPathGenerate {
      */
     public static Map<Integer, Set<Integer>> TNewCustomer;
 
+    //所有用户簇类平均的一个概率。
+    //public static double[] MeanCustomersProducts = new double[N];
+
     /**
      * Init running
      */
-    public TestPathGenerate(boolean printOrNot) {
+    public TestPathGenerate(boolean printOrNot, int M, int K, int N, int Npi) {
+        this.M = M;
+        this.K = K;
+        this.N = N;
+        this.Npi = Npi;
+        NN = N / (100 - 32);
+
         // 初始化graph
         Graph graph = InitMap.returnGraph();
 
@@ -125,32 +132,47 @@ public class TestPathGenerate {
         //***************Generate M Path********************
 
         //***************Generate T Customer********************
-//        for (int L = 0; L < T; L++) {
-//            //choose type of customer;
-//            int i = random.nextInt(K);
-//            //choose nb of products that Ci will buy;
-//            int nb = random.nextInt(N / 4);
-//            //choose which products are bought;
-//            Set<Integer> shopList = new HashSet<Integer>();
-//            for (int k = 0; k < nb; k++) {
-//                double[] productProbability = CustomersProducts.get(i);
-//                double meanPro = 1.0 / N;
-//                int productId = random.nextInt(N);
-//                while (meanPro * (1 + 0.6) > productProbability[productId]) {
-//                    productId = random.nextInt(N);
-//                }
-//                shopList.add(productId);
-//            }
-//            if (printOrNot) {
-//                System.out.println();
-//                System.out.println("新客户" + L + "待购买商品列表:");
-//                for (Integer toBuy : shopList) {
-//                    System.out.print(toBuy + " ");
-//                }
-//            }
-//            TNewCustomer.put(L, shopList);
-//        }
+        for (int L = 0; L < T; L++) {
+            //choose type of customer;
+            int i = random.nextInt(K);
+            //choose nb of products that Ci will buy;
+            int nb = random.nextInt(Npi);
+            //choose which products are bought;
+            Set<Integer> shopList = new HashSet<Integer>();
+            for (int k = 0; k < nb; k++) {
+                double[] productProbability = CustomersProducts.get(i);
+                //大转盘 概率q q在哪个区间选取哪个商品
+                double q = Math.random();
+                //创建转盘
+                double[] wheel = new double[N];
+                wheel[0] = productProbability[0];
+                for (int j = 1; j < N; j++) {
+                    wheel[j] = productProbability[j] + wheel[j - 1];
+                }
+                int productId = 0;
+                //
+                for (int j = N - 1; j >= 1; j--) {
+
+                    if (wheel[j] > q && wheel[j - 1] > 0) {
+                        productId = j;
+                    }
+
+                }
+                shopList.add(productId);
+            }
+
+            if (printOrNot) {
+                System.out.println();
+                System.out.println("新客户" + L + "待购买商品列表:");
+                for (Integer toBuy : shopList) {
+                    System.out.print(toBuy + " ");
+                }
+            }
+            TNewCustomer.put(L, shopList);
+        }
     }
+
+
     //平均簇类只有一个，这里的平均不应该是对顾客簇类的平均，而是购买的平均，所以下面是错误的，应该是对购买历史的平均得到的平均用户簇类，
     //所以这里的平均客户簇类，是对历史数据进行聚类后再平均得到的平均
 //    private void MeanCustomerCluster() {
@@ -168,6 +190,7 @@ public class TestPathGenerate {
 ////            System.out.println(d);
 ////        }
 //    }
+
 
     /**
      * @param shopList1  购买列表
@@ -418,8 +441,6 @@ public class TestPathGenerate {
             if (obs.contains(i)) {
                 continue;
             }
-
-
             Set<Integer> products = new HashSet<Integer>();
             for (int j = 0; j < NN; j++) {
                 while (true) {

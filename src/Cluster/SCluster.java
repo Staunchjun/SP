@@ -19,22 +19,27 @@ public class SCluster {
      */
     private ArrayList<ScCluster> clusters;
     public double sparRatio;
+    public ArrayList<ScDataPoint> data;
     public SCluster(ArrayList<ScDataPoint> data, int K,double threshold) {
         double hyperparameter = 1;
         //把这个 Graph 用邻接矩阵的形式表示出来，记为 W
         int len = data.size();
+        System.out.println("构建邻接矩阵");
         double[][] W = new double[len][len];
         int spar = 0;
+        System.out.println("构建邻接矩阵"+len);
         for (int i = 0; i < len; i++) {
-            for (int j = 0; j < len; j++) {
+//            System.out.println("现在运行第"+i+"轮");
 
+            for (int j = i; j < len; j++) {
+//                System.out.println("现在运行第"+i+"轮"+"第"+j+"次");
                 double dis = EditDistance.similarity(data.get(i).getData(), data.get(j).getData());
                 if (dis< threshold) {
                     dis = 0;
                     spar++;
                 }
                 W[i][j] = dis;
-
+                W[j][i] = dis;
 //                W[i][j] = Math.exp((0-dis*dis)/(2*hyperparameter*hyperparameter));
             }
         }
@@ -65,6 +70,7 @@ public class SCluster {
         D_matrix.assign(W);
 
 
+        System.out.println("构建拉普拉斯矩阵");
         DoubleMatrix2D D_matrix_1div2 = Transform.pow(D_matrix, 0.5);
         DoubleMatrix2D TempMatrix = Transform.mult(D_matrix_1div2, W_matrix);
         DoubleMatrix2D L_matrix = Transform.mult(TempMatrix, D_matrix_1div2);
@@ -117,17 +123,18 @@ public class SCluster {
         //得到聚类结果
         clusters = k_means.getClusters();
 
-        //查看结果
+//        查看结果 并且为每个数据点进行标注
         for (int i = 0; i < clusters.size(); i++) {
-            System.out.println("第" + i + "个簇类");
-            for (ScDataPoint scDataPoint : clusters.get(i).getScDataPoints()
-                    ) {
-                System.out.println("路径是：" + scDataPoint.getData() + "名字是：" + scDataPoint.getDataPointName());
+//            System.out.println("第" + i + "个簇类");
+            for (ScDataPoint scDataPoint : clusters.get(i).getScDataPoints()) {
+//                System.out.println("路径是：" + scDataPoint.getData() + "名字是：" + scDataPoint.getDataPointName());
+                scDataPoint.setScCluster(clusters.get(i));
             }
         }
+
     }
 
-    public ArrayList<ScCluster> getCluster() {
+ public ArrayList<ScCluster> getCluster() {
         return clusters;
     }
 

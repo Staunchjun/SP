@@ -107,7 +107,48 @@ public class Graph {
             this.nodes.get(d).addEdge(this.nodes.get(s).N, new Edge(this.nodes.get(d), this.nodes.get(s), beann.getUtility(), beann.getId()));
         }
     }
+    public Graph(List<EdgeSql> EdgeQgisSql, List<NodeSql> NodesBean, Map<Integer, Double> list, Map<Integer, Integer> pLocation) {
+        V = NodesBean.size();// add node 0
+        E = EdgeQgisSql.size();
 
+        this.nodes = new ArrayList<Node>(V);
+
+        Map<Integer, Double> nodeP = new HashMap<>();
+
+        for (Map.Entry<Integer, Double> e : list.entrySet()) {
+            if (nodeP.containsKey(pLocation.get(e.getKey()))) {
+                double p = nodeP.get(pLocation.get(e.getKey()));
+                p += e.getValue();
+                nodeP.put(pLocation.get(e.getKey()), p);
+            } else {
+                nodeP.put(pLocation.get(e.getKey()), e.getValue());
+            }
+        }
+        //read Node data
+        for (NodeSql nodeSql : NodesBean) {
+            int n = nodeSql.getId();
+            Node node = new Node();
+            node.N = n;
+            node.x = nodeSql.getX();
+            node.y = nodeSql.getY();
+            if (nodeP.containsKey(n)) {
+                node.P = nodeP.get(n);
+            } else {
+                node.P = 0;
+            }
+            this.nodes.add(node);
+        }
+        //read Edge data
+        for (EdgeSql beann : EdgeQgisSql) {
+            int s = beann.getNode_id1();//from
+            int d = beann.getNodeid2();//to
+
+            this.nodes.get(s).addNeighbor(this.nodes.get(d));
+            this.nodes.get(s).addEdge(this.nodes.get(d).N, new Edge(this.nodes.get(s), this.nodes.get(d), beann.getUtility(), beann.getId()));
+            this.nodes.get(d).addNeighbor(this.nodes.get(s));
+            this.nodes.get(d).addEdge(this.nodes.get(s).N, new Edge(this.nodes.get(d), this.nodes.get(s), beann.getUtility(), beann.getId()));
+        }
+    }
     public Graph(List<EdgeSql> EdgeQgisSql, List<NodeSql> NodesBean, Map<Integer, Double> list, TestPathGenerate testPathGenerate) {
         V = NodesBean.size();// add node 0
         E = EdgeQgisSql.size();
