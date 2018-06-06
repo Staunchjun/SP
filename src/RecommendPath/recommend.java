@@ -6,6 +6,8 @@ import GuideDataStructure.Node;
 import GuideDataStructure.Path;
 import GuideMainCode.Guider;
 import com.csvreader.CsvReader;
+import com.csvreader.CsvWriter;
+import org.python.core.AstList;
 
 import java.nio.charset.Charset;
 import java.util.*;
@@ -94,7 +96,7 @@ public class recommend {
             }
         }
 
-
+        ArrayList<ArrayList<Double>> containRates = new ArrayList<>();
         for (Map.Entry<Integer, Set<Integer>> newCustomer : customerBuyList.entrySet()) {
             // 初始化graph
             //Generating paths;
@@ -141,15 +143,16 @@ public class recommend {
             Node Jnode = null;
             int alyeadyBuy = 0;
             List<Integer> restBuy = new ArrayList<Integer>();
-            int J = (int) (newCustomer.getValue().size() - newCustomer.getValue().size() * 0.5);
+            int J = (int) (newCustomer.getValue().size() * 0.5);
             for (int i : newCustomer.getValue()) {
                 if (alyeadyBuy <= J) {
-                    if (alyeadyBuy == J - 1) {
-                        Jnode = graph.getNode(pLocation.get(i));
-                    }
+//                    if (alyeadyBuy == J ) {
+//                        Jnode = graph.getNode(pLocation.get(i));
+//                    }
                     nodes.add(graph.getNode(pLocation.get(i)));
                     alyeadyBuy++;
                 } else {
+                    Jnode = graph.getNode(pLocation.get(i));
                     restBuy.add(i);
                 }
             }
@@ -234,8 +237,35 @@ public class recommend {
 
             // 带有的总概率算预测接下来的路径推荐，
             // 看回最初的路径推荐算法
-            RecommendPath(Jnode, restBuy, node_j_1, ProductProbability, true,shelf ,pLocation,obs);
+            try {
+                ArrayList<Double> results = RecommendPath(Jnode, restBuy, node_j_1, ProductProbability, true, shelf, pLocation, obs);
+                containRates.add(results);
+        } catch (NullPointerException e)
+            {
+               continue;
+            }
         }
+
+        String pathFile = "/Users/ruanwenjun/IdeaProjects/SP/src/csvData/containRate.csv";
+        CsvWriter csvcontainRates = new CsvWriter(pathFile, ',', Charset.forName("GBK"));
+
+        for (ArrayList<Double> d:containRates) {
+            String[] headers = new String[4];
+            try {
+                headers[0] = String.valueOf(d.get(0));
+                headers[1] = String.valueOf(d.get(1));
+                headers[2] = String.valueOf(d.get(2));
+                headers[3] = String.valueOf(d.get(3));
+            }
+            catch (NullPointerException e)
+            {
+                continue;
+            }
+            csvcontainRates.writeRecord(headers);
+            csvcontainRates.flush();
+        }
+        csvcontainRates.close();
+
     }
     /**
      * 开始路径推荐
@@ -247,18 +277,25 @@ public class recommend {
      * @param productProbability
      * @return
      */
-    private static boolean RecommendPath(Node jnode, List<Integer> restBuy, Node node_j_1,
+    private static ArrayList<Double> RecommendPath(Node jnode, List<Integer> restBuy, Node node_j_1,
                                          Map<Integer, Double> productProbability,
                                          boolean printlOrNot,Map<Integer, Set<Integer>> shelf ,
                                          Map<Integer, Integer> pLocation,List<Node> obs) {
         Graph graphWP = InitMap.returnGraphWP(productProbability,pLocation);
+
         List<Path> paths = Guider.getSingleDestPath(graphWP, node_j_1, graphWP.getNode(jnode.N), obs, 0.1, printlOrNot);
+
         System.out.println("用户要购买但是还没买的：");
         for (int i : restBuy) {
             System.out.print(i + " ");
         }
+
+        double restBuyNum = restBuy.size();
+
         System.out.println();
-               for (Path p : paths) {
+        double max = 0;
+        for (Path p : paths) {
+            double containNum = 0;
             for (Node node : p.getNodes()) {
                 System.out.print(node.N + "<-");
             }
@@ -267,13 +304,27 @@ public class recommend {
                 System.out.print(node.N + ":" + node.P + "    ");
                 Set<Integer> produccts = shelf.get(node.N);
                 for (int i : restBuy) {
-                    if (produccts.contains(i))
+                    if (produccts.contains(i)) {
                         System.out.print("包含要买的：" + i);
+                        containNum++;
+                    }
                 }
                 System.out.println();
             }
             System.out.println();
+            if (max < containNum)
+            {
+                max = containNum;
+            }
         }
+
+
+        double containNumRate = max/restBuyNum;
+        ArrayList<Double> arrayList = new ArrayList();
+        arrayList.add(containNumRate);
+        arrayList.add(max);
+        arrayList.add(restBuyNum);
+
         double MaxUtility = Integer.MIN_VALUE;
         Path bestPath = null;
         for (Path path : paths) {
@@ -285,14 +336,16 @@ public class recommend {
 
         System.out.println();
         if (bestPath == null) {
-            return true;
+            return null;
         }
         System.out.println("this is best path with highest utility  :" + bestPath.U);
+        arrayList.add(Double.valueOf(bestPath.getNodes().size()));
         for (Node node : bestPath.getNodes()) {
             System.out.print(node.N + "<-");
         }
         System.out.println();
-        return false;
+
+        return arrayList;
     }
 
     /**

@@ -241,7 +241,7 @@ public class Algorithm {
                 System.out.print("impossible to reach");
             } else {
                 Iterator iterator = stack.iterator();
-                System.out.print("The distance is :" + path.G+"  the sum of probability"+String.format("%4f", path.U)+ "------");
+                System.out.println("Distance " + path.G+" Probability:"+String.format("%4f", path.U));
 
                 while (iterator.hasNext()) {
                     Node temp = (Node) iterator.next();

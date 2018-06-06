@@ -113,8 +113,9 @@ public class TT {
             Map<String, Map<Integer, Double>> clusterDistributionTemp = clusterDistributions.get(i);
             for (Map.Entry<String, Map<Integer, Double>> e : clusterDistributionTemp.entrySet()) {
                 Map<Integer, Double> ee = e.getValue();//e.getKey()拿到的是cluster的名字
-                for (int j = 0; j < ee.size(); j++) {
-                    MeanCustomersProducts[j] += ee.get(j);
+                for (Map.Entry<Integer,Double> eee:ee.entrySet())
+                {
+                    MeanCustomersProducts[eee.getKey()] +=eee.getValue();
                 }
             }
 
@@ -339,7 +340,7 @@ public class TT {
      */
     private static void computeErrorByMean(Map<Integer, Map<String, Map<Integer, Double>>> clusterDistributions, boolean printOrNot, double[] MeanCustomersProducts1) {
         List<Double> errListWithMean = new ArrayList<>();
-        for (int i = 0; i < TestPathGenerate.K; i++) {
+        for (int i = 0; i < clusterDistributions.size(); i++) {
             int productNum = MeanCustomersProducts1.length;
             Map<String, Map<Integer, Double>> clusterDistributionTemp = clusterDistributions.get(i);
             double[] distributionByPath = new double[productNum];

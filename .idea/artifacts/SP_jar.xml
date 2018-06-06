@@ -1,5 +1,5 @@
 <component name="ArtifactManager">
-  <artifact type="jar" build-on-make="true" name="SP:jar">
+  <artifact type="jar" name="SP:jar">
     <output-path>$USER_HOME$/Desktop</output-path>
     <root id="archive" name="SP.jar">
       <element id="module-output" name="SP" />

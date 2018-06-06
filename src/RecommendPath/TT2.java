@@ -18,170 +18,206 @@ import java.util.*;
  */
 public class TT2 {
     public static void main(String[] args) throws Exception {
-        ArrayList<ArrayList<Double>> all_difs = new ArrayList<ArrayList<Double>>();
-        ArrayList<ArrayList<Double>> all_spars = new ArrayList<>();
+        ArrayList<Double> aaaaaaa = new ArrayList<>();
+        for (int iii = 30; iii < 3000; iii = iii + 50) {
+            System.out.println("================"+iii);
+            System.out.println("================"+iii);
+            System.out.println("================"+iii);
+            System.out.println("================"+iii);
+            System.out.println("================"+iii);
+            System.out.println("================"+iii);
+            System.out.println("================"+iii);
+            System.out.println("================"+iii);
+            System.out.println("================"+iii);
+            System.out.println("================"+iii);
+            System.out.println("================"+iii);
+//            ArrayList<ArrayList<Double>> all_difs = new ArrayList<ArrayList<Double>>();
+//            ArrayList<ArrayList<Double>> all_spars = new ArrayList<>();
 
 
-        System.out.println("现在开始读取数据");
-        long start = System.currentTimeMillis();
-        Map<String, Set<Integer>> history = new HashMap<String, Set<Integer>>();
-        CsvReader reader = new CsvReader("/Users/ruanwenjun/IdeaProjects/SP/src/csvData/Paths.csv", ',', Charset.forName("GBK"));
-        while (reader.readRecord()) {
-            String s = reader.getValues()[1];
-            String[] ss = s.split(",");
-            Set<Integer> integerSet = new HashSet<>();
-            for (String sss : ss) {
-                integerSet.add(Integer.valueOf(sss));
+            System.out.println("现在开始读取数据");
+            long start = System.currentTimeMillis();
+            Map<String, Set<Integer>> history = new HashMap<String, Set<Integer>>();
+            CsvReader reader = new CsvReader("/Users/ruanwenjun/IdeaProjects/SP/src/csvData/Paths"+iii+".csv", ',', Charset.forName("GBK"));
+            while (reader.readRecord()) {
+                String s = reader.getValues()[1];
+                String[] ss = s.split(",");
+                Set<Integer> integerSet = new HashSet<>();
+                for (String sss : ss) {
+                    integerSet.add(Integer.valueOf(sss));
+                }
+
+                history.put(reader.getValues()[0], integerSet);
+
+            }
+            reader.close();
+
+
+            ArrayList<String[]> customerDistributionRaw = new ArrayList<String[]>();
+            reader = new CsvReader("/Users/ruanwenjun/IdeaProjects/SP/src/csvData/CustomerDistribution.csv", ',', Charset.forName("GBK"));
+            while (reader.readRecord()) {
+                customerDistributionRaw.add(reader.getValues());
+            }
+            reader.close();
+
+            Map<Integer, double[]> customerDistribution = new HashMap<>();
+            for (String[] data : customerDistributionRaw) {
+                String[] pro = data[1].split(",");
+                double[] pros = new double[pro.length];
+                for (int i = 0; i < pro.length; i++) {
+                    pros[i] = Double.valueOf(pro[i]);
+                }
+                customerDistribution.put(Integer.valueOf(data[0]), pros);
             }
 
-            history.put(reader.getValues()[0], integerSet);
+            System.out.println("现在开始运行算法");
 
-        }
-        reader.close();
-
-
-        ArrayList<String[]> customerDistributionRaw = new ArrayList<String[]>();
-        reader = new CsvReader("/Users/ruanwenjun/IdeaProjects/SP/src/csvData/CustomerDistribution.csv", ',', Charset.forName("GBK"));
-        while (reader.readRecord()) {
-            customerDistributionRaw.add(reader.getValues());
-        }
-        reader.close();
-
-        Map<Integer, double[]> customerDistribution = new HashMap<>();
-        for (String[] data : customerDistributionRaw) {
-            String[] pro = data[1].split(",");
-            double[] pros = new double[pro.length];
-            for (int i = 0; i < pro.length; i++) {
-                pros[i] = Double.valueOf(pro[i]);
-            }
-            customerDistribution.put(Integer.valueOf(data[0]), pros);
-        }
-
-        System.out.println("现在开始运行算法");
-
-        int times = 1;
+            int times = 1;
 //        double det = 0.4 / times;
-        double det = 0;
+            double det = 0.4;
 
-        for (int j = 9; j < 10; j++) {
-            ArrayList<Double> difs = new ArrayList<Double>();
-            ArrayList<Double> spars = new ArrayList<>();
-            double threshold = 0;
-
-            //加载历史数据，并且添加要搜寻的数据
-            ArrayList<ScDataPoint> dataSet = new ArrayList<ScDataPoint>();
-            int count = 0;
-            for (HashMap.Entry<String, Set<Integer>> e : history.entrySet()) {
-                if (e.getKey().length() != 0)
-                    dataSet.add(new ScDataPoint(e.getKey(), "b" + count));
-                count++;
-            }
-            for (int i = 0; i < times; i++) {
+//            for (int j = 9; j < 10; j++) {
+                ArrayList<Double> difs = new ArrayList<Double>();
+                ArrayList<Double> spars = new ArrayList<>();
+                double threshold = 0;
+//            ArrayList<ArrayList<Double>> all_difs = new
+                //加载历史数据，并且添加要搜寻的数据
+                ArrayList<ScDataPoint> dataSet = new ArrayList<ScDataPoint>();
+                int count = 0;
+                for (HashMap.Entry<String, Set<Integer>> e : history.entrySet()) {
+                    if (e.getKey().length() != 0) {
+                        dataSet.add(new ScDataPoint(e.getKey(), "b" + count));
+                    }
+                    count++;
+                }
+                System.out.println("================"+dataSet.size());
+                System.out.println("================"+dataSet.size());
+                System.out.println("================"+dataSet.size());
+                System.out.println("================"+dataSet.size());
+                System.out.println("================"+dataSet.size());
+                System.out.println("================"+dataSet.size());
+                System.out.println("================"+dataSet.size());
+//                for (int i = 0; i < times; i++) {
                 threshold += det;
                 System.out.println("聚类进行中");
                 long startTime = System.currentTimeMillis();
 
 //            double threshold = 0.35;
-                //设置原始数据集,并开始聚类
-                SCluster sCluster = new SCluster(dataSet, customerDistribution.size(), threshold);
-                spars.add(sCluster.sparRatio);
-                //得到所有聚类结果
-                ArrayList<ScCluster> clusters = sCluster.getCluster();
+                    //设置原始数据集,并开始聚类
+                    SCluster sCluster = new SCluster(dataSet, customerDistribution.size(), threshold);
+                    spars.add(sCluster.sparRatio);
+                    //得到所有聚类结果
+                    ArrayList<ScCluster> clusters = sCluster.getCluster();
 
-                //计算所有簇类的概率分布
-                Map<Integer, Map<String, Map<Integer, Double>>> clusterDistributions = getClusterDistributions(customerDistribution, history, clusters, true);
+                    //计算所有簇类的概率分布
+                    Map<Integer, Map<String, Map<Integer, Double>>> clusterDistributions = getClusterDistributions(customerDistribution, history, clusters, true);
 
-                //计算路径聚类下的平均簇类
-                double[] MeanCustomersProducts1 = getMeanCluster(customerDistribution, clusterDistributions);
+                    //计算路径聚类下的平均簇类
+                    double[] MeanCustomersProducts1 = getMeanCluster(customerDistribution, clusterDistributions);
 
-                //路径簇类和路径聚类下的平均簇类差值，这里不需要配对，因为平均簇类是一样的
-//                    computeErrorByMean(clusterDistributions, true, MeanCustomersProducts1);
+                    //路径簇类和路径聚类下的平均簇类差值，这里不需要配对，因为平均簇类是一样的
+                    computeErrorByMean(clusterDistributions, true, MeanCustomersProducts1);
 
-                //建立ErrorMap用于簇类配对(自身聚类后计算的概率分布和给定的用户的概率分布之差，error最小为一对)
-                int errorsMapLength = clusterDistributions.size();
-                double[][] errorsMap = createErrorMap(customerDistribution, clusterDistributions, errorsMapLength);
-                //根据ErrorMap进行一一配对，打印路径簇类和给定概率簇类的比较
-                double clustered = pairClusterByErrormap(errorsMapLength, errorsMap, true);
+                    //建立ErrorMap用于簇类配对(自身聚类后计算的概率分布和给定的用户的概率分布之差，error最小为一对)
+                    int errorsMapLength = clusterDistributions.size();
+                    double[][] errorsMap = createErrorMap(customerDistribution, clusterDistributions, errorsMapLength);
+                    //根据ErrorMap进行一一配对，打印路径簇类和给定概率簇类的比较
+                    double clustered = pairClusterByErrormap(errorsMapLength, errorsMap, true);
 
-                //路径聚类下的平均簇类和给定顾客簇类的差值
-                double mean = errorMeancustomerAndCustomer(customerDistribution, true, MeanCustomersProducts1);
+                    //路径聚类下的平均簇类和给定顾客簇类的差值
+                    double mean = errorMeancustomerAndCustomer(customerDistribution, true, MeanCustomersProducts1);
 
-                double dif = mean - clustered;
-                difs.add(dif);
+                    double dif = mean - clustered;
+                    difs.add(dif);
 
-                System.out.println("聚类结束");
+                    System.out.println("聚类结束");
 
-                long endTime = System.currentTimeMillis();
-                double total = endTime - startTime;
-                System.out.println("谱聚类耗时：" + total);
+                    long endTime = System.currentTimeMillis();
+                    double total = endTime - startTime;
+                    System.out.println("谱聚类耗时：" + total);
+                    aaaaaaa.add(clustered);
 
+                try {
+                // 创建CSV写对象
+                   String errorFilePath = "/Users/ruanwenjun/IdeaProjects/SP/src/csvData/errorFilePath.csv";
+                CsvWriter csvWriterError = new CsvWriter(errorFilePath, ',', Charset.forName("GBK"));
+                    for (Double d:aaaaaaa) {
+                        String[] headers = new String[1];
+                        headers[0] = String.valueOf(d);
+                        csvWriterError.writeRecord(headers);
+                        csvWriterError.flush();
+                    }
+                    csvWriterError.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            all_difs.add(difs);
-            all_spars.add(spars);
 
+//                }
+//                all_difs.add(difs);
+//                all_spars.add(spars);
+//            }
+
+//
+//            int all_difs_length = all_difs.size();
+//            int difs_length = all_difs.get(0).size();
+//            ArrayList<Double> mean_difs = new ArrayList<Double>();
+//            ArrayList<Double> mean_spars = new ArrayList<>();
+//            for (int i = 0; i < difs_length; i++) {
+//                double sum_dif = 0;
+//                for (int j = 0; j < all_difs_length; j++) {
+//                    sum_dif += all_difs.get(j).get(i);
+//                }
+//                double mean_dif = sum_dif / all_difs_length;
+//                mean_difs.add(mean_dif);
+//            }
+//            for (int i = 0; i < difs_length; i++) {
+//                double sum_spars = 0;
+//                for (int j = 0; j < all_difs_length; j++) {
+//                    sum_spars += all_spars.get(j).get(i);
+//                }
+//                double mean_spar = sum_spars / all_difs_length;
+//                mean_spars.add(mean_spar);
+//            }
+//            System.out.println("正在写error.csv");
+//            String errorFilePath = "ErrorVsThreshold.csv";
+//            Util.createFile(errorFilePath);
+//            int threshold = 0;
+//            try {
+//                // 创建CSV写对象
+//                CsvWriter csvWriterError = new CsvWriter(errorFilePath, ',', Charset.forName("GBK"));
+//                for (int i = 0; i < times; i++) {
+//                    threshold += det;
+//                    String[] headers = new String[2];
+//                    headers[0] = String.valueOf(threshold);
+//                    headers[1] = String.valueOf(mean_difs.get(i));
+//                    csvWriterError.writeRecord(headers);
+//                    csvWriterError.flush();
+//                }
+//                csvWriterError.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//            System.out.println("正在写sparsity.csv");
+//            String sparsityFilePath = "SparsityVsThreshold.csv";
+//            Util.createFile(sparsityFilePath);
+//            double threshold2 = 0;
+//            try {
+//                // 创建CSV写对象
+//                CsvWriter csvWriterSparsity = new CsvWriter(sparsityFilePath, ',', Charset.forName("GBK"));
+//                for (int i = 0; i < times; i++) {
+//                    threshold2 += det;
+//                    String[] headers = new String[2];
+//                    headers[0] = String.valueOf(threshold2);
+//                    headers[1] = String.valueOf(mean_spars.get(i));
+//                    csvWriterSparsity.writeRecord(headers);
+//                    csvWriterSparsity.flush();
+//                }
+//                csvWriterSparsity.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
 
         }
-
-
-        int all_difs_length = all_difs.size();
-        int difs_length = all_difs.get(0).size();
-        ArrayList<Double> mean_difs = new ArrayList<Double>();
-        ArrayList<Double> mean_spars = new ArrayList<>();
-        for (int i = 0; i < difs_length; i++) {
-            double sum_dif = 0;
-            for (int j = 0; j < all_difs_length; j++) {
-                sum_dif += all_difs.get(j).get(i);
-            }
-            double mean_dif = sum_dif / all_difs_length;
-            mean_difs.add(mean_dif);
-        }
-        for (int i = 0; i < difs_length; i++) {
-            double sum_spars = 0;
-            for (int j = 0; j < all_difs_length; j++) {
-                sum_spars += all_spars.get(j).get(i);
-            }
-            double mean_spar = sum_spars / all_difs_length;
-            mean_spars.add(mean_spar);
-        }
-        System.out.println("正在写error.csv");
-        String errorFilePath = "ErrorVsThreshold.csv";
-        Util.createFile(errorFilePath);
-        int threshold = 0;
-        try {
-            // 创建CSV写对象
-            CsvWriter csvWriterError = new CsvWriter(errorFilePath, ',', Charset.forName("GBK"));
-            for (int i = 0; i < times; i++) {
-                threshold += det;
-                String[] headers = new String[2];
-                headers[0] = String.valueOf(threshold);
-                headers[1] = String.valueOf(mean_difs.get(i));
-                csvWriterError.writeRecord(headers);
-                csvWriterError.flush();
-            }
-            csvWriterError.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.out.println("正在写sparsity.csv");
-        String sparsityFilePath = "SparsityVsThreshold.csv";
-        Util.createFile(sparsityFilePath);
-        double threshold2 = 0;
-        try {
-            // 创建CSV写对象
-            CsvWriter csvWriterSparsity = new CsvWriter(sparsityFilePath, ',', Charset.forName("GBK"));
-            for (int i = 0; i < times; i++) {
-                threshold2 += det;
-                String[] headers = new String[2];
-                headers[0] = String.valueOf(threshold2);
-                headers[1] = String.valueOf(mean_spars.get(i));
-                csvWriterSparsity.writeRecord(headers);
-                csvWriterSparsity.flush();
-            }
-            csvWriterSparsity.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
     }
 
     /**
@@ -197,8 +233,12 @@ public class TT2 {
             Map<String, Map<Integer, Double>> clusterDistributionTemp = clusterDistributions.get(i);
             for (Map.Entry<String, Map<Integer, Double>> e : clusterDistributionTemp.entrySet()) {
                 Map<Integer, Double> ee = e.getValue();//e.getKey()拿到的是cluster的名字
-                for (int j = 0; j < ee.size(); j++) {
-                    MeanCustomersProducts[j] += ee.get(j);
+//                for (int j = 0; j < ee.size(); j++) {
+//                    MeanCustomersProducts[j] += ee.get(j);
+//                }
+                for (Map.Entry<Integer,Double> eee:ee.entrySet())
+                {
+                    MeanCustomersProducts[eee.getKey()] +=eee.getValue();
                 }
             }
 
@@ -370,7 +410,7 @@ public class TT2 {
      */
     private static double computeErrorByMean(Map<Integer, Map<String, Map<Integer, Double>>> clusterDistributions, boolean printOrNot, double[] MeanCustomersProducts1) {
         List<Double> errListWithMean = new ArrayList<>();
-        for (int i = 0; i < TestPathGenerate.K; i++) {
+        for (int i = 0; i < clusterDistributions.size(); i++) {
             int productNum = MeanCustomersProducts1.length;
             Map<String, Map<Integer, Double>> clusterDistributionTemp = clusterDistributions.get(i);
             double[] distributionByPath = new double[productNum];

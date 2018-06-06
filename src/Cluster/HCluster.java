@@ -41,13 +41,19 @@ public class HCluster {
                      * (平均距离)得到两个类簇中所有的样本的距离的和除以两个类簇中的样本数量的积，其中两个样本之间的距离用的是编辑距离。
                      * 注意：这个地方的类簇之间的距离可以 换成其他的计算方法
                      */
-                    double tempDis = 0;
+                    double tempDis = 1000000;
                     for (int m = 0; m < hcDataPointsA.size(); m++) {
                         for (int n = 0; n < hcDataPointsB.size(); n++) {
-                            tempDis = tempDis + EditDistance.similarity(hcDataPointsA.get(m).getData(), hcDataPointsB.get(n).getData());
+
+                            double maxDis = EditDistance.similarity(hcDataPointsA.get(m).getData(), hcDataPointsB.get(n).getData());
+                            if (maxDis < tempDis)
+                            {
+                                tempDis = maxDis;
+                            }
+//                            tempDis = tempDis + EditDistance.similarity(hcDataPointsA.get(m).getData(), hcDataPointsB.get(n).getData());
                         }
                     }
-                    tempDis = tempDis / (hcDataPointsA.size() * hcDataPointsB.size());
+//                    tempDis = tempDis / (hcDataPointsA.size() * hcDataPointsB.size());
 
                     if (tempDis >= max) {
                         max = tempDis;

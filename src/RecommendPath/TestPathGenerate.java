@@ -28,7 +28,7 @@ public class TestPathGenerate {
     //给定一个概率分布，这里的概率意思是每顾客对每一种商品的喜好程度，概率和为1。
     public static Map<Integer, double[]> CustomersProducts;
     //T个新的顾客，只知道他们将要购物的清单列表
-    final int T = 10;
+    final int T = 100;
     //所有的购物列表集合
     public ArrayList<ArrayList<Integer>> shopLists;
 
@@ -80,96 +80,123 @@ public class TestPathGenerate {
         FillShelf();
 
 
-        //***************Generate M Path********************
-        shopLists = new ArrayList<ArrayList<Integer>>();
-        for (int L = 0; L < M; L++) {
-            System.out.println("生产路径：" + L);
-            //choose type of customer;
-            int i = random.nextInt(K);
-            //choose nb of products that Ci will buy;
-            int nb = random.nextInt(Npi);
+        for (int iii = 30; iii < 3000; iii=iii+50) {
+            //***************Generate M Path********************
+            shopLists = new ArrayList<ArrayList<Integer>>();
+            for (int L = 0; L < iii; L++) {
+                System.out.println("生产路径：" + L);
+                //choose type of customer;
+                int i = random.nextInt(K);
+                //choose nb of products that Ci will buy;
+                int nb = random.nextInt(Npi);
 //            choose which products are bought;
-            ArrayList<Integer> shopList = new ArrayList<>();
-            //轮盘选取 product 下面选取商品的方法导致概率低的商品永远不会被购买
+                ArrayList<Integer> shopList = new ArrayList<>();
+                //轮盘选取 product 下面选取商品的方法导致概率低的商品永远不会被购买
 //            double meanPro = 1.0 / N;
-            for (int k = 0; k < nb; k++) {
-                double[] productProbability = CustomersProducts.get(i);
+                for (int k = 0; k < nb; k++) {
+                    double[] productProbability = CustomersProducts.get(i);
 //                //if productProbability higher than meanPro(1+0.8),i can consider the customer will bought it
 //                int productId = random.nextInt(N);
 //                while (meanPro *(1+0.7) > productProbability[productId]) {
 //                    productId = random.nextInt(N);
 //                }
-                //大转盘 概率q q在哪个区间选取哪个商品
-                double q = Math.random();
-                //创建转盘
-                double[] wheel = new double[N];
-                wheel[0] = productProbability[0];
-                for (int j = 1; j < N; j++) {
-                    wheel[j] = productProbability[j] + wheel[j - 1];
-                }
-                int productId = 0;
-                //
-                for (int j = N - 1; j >= 1; j--) {
-
-                    if (wheel[j] > q && wheel[j - 1] > 0) {
-                        productId = j;
+                    //大转盘 概率q q在哪个区间选取哪个商品
+                    double q = Math.random();
+                    //创建转盘
+                    double[] wheel = new double[N];
+                    wheel[0] = productProbability[0];
+                    for (int j = 1; j < N; j++) {
+                        wheel[j] = productProbability[j] + wheel[j - 1];
                     }
+                    int productId = 0;
+                    //
+                    for (int j = N - 1; j >= 1; j--) {
 
+                        if (wheel[j] > q && wheel[j - 1] > 0) {
+                            productId = j;
+                        }
+
+                    }
+                    shopList.add(productId);
                 }
-                shopList.add(productId);
-            }
-            if (printOrNot) {
-                System.out.println();
-                System.out.println("历史客户" + L + "输出待购买商品列表:");
-                for (Integer toBuy : shopList) {
-                    System.out.print(toBuy + " ");
+                if (printOrNot) {
+                    System.out.println();
+                    System.out.println("历史客户" + L + "输出待购买商品列表:");
+                    for (Integer toBuy : shopList) {
+                        System.out.print(toBuy + " ");
+                    }
                 }
-            }
-            shopLists.add(shopList);
+                shopLists.add(shopList);
 //            System.out.println();
-            GetPath(shopList, false, graph);
+                GetPath(shopList, false, graph);
+            }
+            try {
+                System.out.println("正在写用户路径Paths"+iii+".csv");
+                // 创建CSV写对象
+                String pathFile = "/Users/ruanwenjun/IdeaProjects/SP/src/csvData/Paths"+iii+".csv";
+                CsvWriter csvWriterSparsity = new CsvWriter(pathFile, ',', Charset.forName("GBK"));
+                /**
+                 * String 存放的是路径，Set 存放的是购买清单
+                 */
+                for (Map.Entry<String, Set<Integer>> path : history.entrySet()) {
+                    String[] headers = new String[2];
+                    headers[0] = path.getKey();
+                    StringBuilder stringBuilder = new StringBuilder();
+                    for (Integer k : path.getValue()) {
+                        stringBuilder.append(k);
+                        stringBuilder.append(",");
+                    }
+                    headers[1] = stringBuilder.toString();
+                    csvWriterSparsity.writeRecord(headers);
+                    csvWriterSparsity.flush();
+                }
+                csvWriterSparsity.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            history.clear();
         }
         //***************Generate M Path********************
 
-        //***************Generate T Customer********************
-        for (int L = 0; L < T; L++) {
-            //choose type of customer;
-            int i = random.nextInt(K);
-            //choose nb of products that Ci will buy;
-            int nb = random.nextInt(Npi);
-            //choose which products are bought;
-            Set<Integer> shopList = new HashSet<Integer>();
-            for (int k = 0; k < nb; k++) {
-                double[] productProbability = CustomersProducts.get(i);
-                //大转盘 概率q q在哪个区间选取哪个商品
-                double q = Math.random();
-                //创建转盘
-                double[] wheel = new double[N];
-                wheel[0] = productProbability[0];
-                for (int j = 1; j < N; j++) {
-                    wheel[j] = productProbability[j] + wheel[j - 1];
-                }
-                int productId = 0;
-                //
-                for (int j = N - 1; j >= 1; j--) {
-
-                    if (wheel[j] > q && wheel[j - 1] > 0) {
-                        productId = j;
-                    }
-
-                }
-                shopList.add(productId);
-            }
-
-            if (printOrNot) {
-                System.out.println();
-                System.out.println("新客户" + L + "待购买商品列表:");
-                for (Integer toBuy : shopList) {
-                    System.out.print(toBuy + " ");
-                }
-            }
-            TNewCustomer.put(L, shopList);
-        }
+//        //***************Generate T Customer********************
+//        for (int L = 0; L < T; L++) {
+//            //choose type of customer;
+//            int i = random.nextInt(K);
+//            //choose nb of products that Ci will buy;
+//            int nb = random.nextInt(Npi);
+//            //choose which products are bought;
+//            Set<Integer> shopList = new HashSet<Integer>();
+//            for (int k = 0; k < nb; k++) {
+//                double[] productProbability = CustomersProducts.get(i);
+//                //大转盘 概率q q在哪个区间选取哪个商品
+//                double q = Math.random();
+//                //创建转盘
+//                double[] wheel = new double[N];
+//                wheel[0] = productProbability[0];
+//                for (int j = 1; j < N; j++) {
+//                    wheel[j] = productProbability[j] + wheel[j - 1];
+//                }
+//                int productId = 0;
+//                //
+//                for (int j = N - 1; j >= 1; j--) {
+//
+//                    if (wheel[j] > q && wheel[j - 1] > 0) {
+//                        productId = j;
+//                    }
+//
+//                }
+//                shopList.add(productId);
+//            }
+//
+//            if (printOrNot) {
+//                System.out.println();
+//                System.out.println("新客户" + L + "待购买商品列表:");
+//                for (Integer toBuy : shopList) {
+//                    System.out.print(toBuy + " ");
+//                }
+//            }
+//            TNewCustomer.put(L, shopList);
+//        }
     }
 
 
